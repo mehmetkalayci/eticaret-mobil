@@ -6,6 +6,7 @@ import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 Future<List<CartModel>> getCartItems() async {
   final response = await http.get(
@@ -16,10 +17,56 @@ Future<List<CartModel>> getCartItems() async {
   );
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
-
     return jsonResponse.map((item) => new CartModel.fromJson(item)).toList();
   } else {
     throw Exception("Ürün sepete eklenemedi!");
+  }
+}
+
+Future<List<CartModel>> addToCart(int productId, int pcs) async {
+  final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
+  final headers = {'Content-Type': 'application/json'};
+  Map<String, dynamic> body = {'productId': productId, 'pcs': pcs};
+
+  String jsonBody = json.encode(body);
+  final encoding = Encoding.getByName('utf-8');
+
+  Response response = await http.post(
+    uri,
+    headers: headers,
+    body: jsonBody,
+    encoding: encoding,
+  );
+
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((item) => new CartModel.fromJson(item)).toList();
+  } else {
+    throw Exception("Ürün sepete eklenemedi!");
+  }
+}
+
+Future<CartModel> deleteAnItemCompletely(int productId) async {
+  final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
+  final headers = {'Content-Type': 'application/json'};
+  Map<String, dynamic> body = {'productId': productId};
+
+  String jsonBody = json.encode(body);
+  final encoding = Encoding.getByName('utf-8');
+
+  Response response = await http.delete(
+    uri,
+    headers: headers,
+    body: jsonBody,
+    encoding: encoding,
+  );
+
+  if (response.statusCode == 200) {
+    return CartModel.fromJson(json.decode(response.body));
+  } else if (response.statusCode == 404) {
+    throw Exception("Ürün zaten sepette yok!");
+  } else {
+    throw Exception("Ürün sepeten silinemedi!");
   }
 }
 
@@ -28,19 +75,16 @@ class CartProvider with ChangeNotifier {
 
   bool loading = false;
 
-  getPostData() async {
+  loadItems() async {
     loading = true;
     cartItems = await getCartItems();
     loading = false;
     notifyListeners();
   }
 
-  List<CartModel> get items {
-    return cartItems.toList();
-  }
-
-  int get itemCount {
-    return cartItems.length;
+  insertItem(int productId) {
+    addToCart(productId, 1).then((value) => loadItems());
+    notifyListeners();
   }
 
   double get totalAmount {
@@ -55,51 +99,13 @@ class CartProvider with ChangeNotifier {
     return total;
   }
 
-  void addItem(int productId, String productName, double sellingPrice,
-      double discountedPrice, int pcs, bool isDiscounted, String thumbSrc) {
-    var item = cartItems.firstWhereOrNull((x) => x.productId == productId);
-    if (item != null) {
-      item.pcs++;
-    } else {
-      items.add(
-        CartModel(
-          productId: productId,
-          productName: productName,
-          sellingPrice: sellingPrice,
-          discountedPrice: discountedPrice,
-          pcs: pcs,
-          isDiscounted: isDiscounted,
-          thumbSrc: thumbSrc,
-        ),
-      );
-    }
-
-    notifyListeners();
-  }
-
   void removeItem(int productId) {
-    var item =
-        items.firstWhereOrNull((element) => element.productId == productId);
-    if (item != null) {
-      items.remove(item);
-    }
+    addToCart(productId, -1).then((value) => loadItems());
     notifyListeners();
   }
 
-  void removeSingleItem(int productId) {
-    var item = cartItems.where((x) => x.productId == productId).first;
-    if (item != null) {
-      if (item.pcs > 1) {
-        item.pcs--;
-      } else {
-        items.remove(item.productId);
-      }
-    }
-    notifyListeners();
-  }
-
-  void clear() {
-    items.clear();
+  void removeItemCompletely(int productId) {
+    deleteAnItemCompletely(productId).then((value) => loadItems());
     notifyListeners();
   }
 }

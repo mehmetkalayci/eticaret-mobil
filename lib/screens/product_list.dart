@@ -135,13 +135,15 @@ class _ProductListPageState extends State<ProductListPage>
             shrinkWrap: true,
             physics: ScrollPhysics(),
             slivers: <Widget>[
+
               SliverAppBar(
+                snap: true,
                 pinned: true,
                 floating: true,
                 title: Text(selectedCategory.name),
                 toolbarHeight: 60,
-                collapsedHeight: 150,
-                expandedHeight: 150,
+                collapsedHeight: 60,
+                expandedHeight: 200,
                 surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
                 automaticallyImplyLeading: true,
                 elevation: 1,
@@ -157,10 +159,11 @@ class _ProductListPageState extends State<ProductListPage>
                 ),
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 flexibleSpace: FlexibleSpaceBar(
+
                   background: Container(),
                   expandedTitleScale: 1,
                   title: SizedBox(
-                    height: 110,
+                    height: 100,
                     child: Column(
                       children: [
                         Flexible(
@@ -215,7 +218,6 @@ class _ProductListPageState extends State<ProductListPage>
                   future: futureProducts,
                   builder: (BuildContext context,
                       AsyncSnapshot<List<ProductModel>> snapshot) {
-
                     if (snapshot.hasData) {
                       if (snapshot.data!.length > 0) {
                         return GridView.builder(
@@ -223,15 +225,16 @@ class _ProductListPageState extends State<ProductListPage>
                             physics: BouncingScrollPhysics(),
                             padding: EdgeInsets.zero,
                             gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 200,
-                              childAspectRatio: 0.75,
-                              crossAxisSpacing: 2.5,
-                              mainAxisSpacing: 2.5,
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              childAspectRatio: 0.7,
+                              crossAxisSpacing: 2,
+                              mainAxisSpacing: 2,
+                              crossAxisCount: 2,
                             ),
                             itemCount: snapshot.data!.length,
                             itemBuilder: (BuildContext ctx, index) {
                               return MaterialButton(
+                                padding: EdgeInsets.zero,
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -244,7 +247,7 @@ class _ProductListPageState extends State<ProductListPage>
                                     ),
                                   );
                                 },
-                                color: Colors.white,
+                                color: Colors.red,
                                 splashColor: Colors.grey.shade200,
                                 highlightColor: Colors.white,
                                 elevation: 0,
@@ -254,20 +257,20 @@ class _ProductListPageState extends State<ProductListPage>
                                 disabledElevation: 0,
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
-                                      vertical: 5, horizontal: 10),
+                                    vertical: 5,
+                                    horizontal: 10,
+                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Flexible(
-                                        child: Image.network(
-                                          snapshot.data![index].productImages
-                                              .first.src,
-                                          height: 180,
-                                          width: 180,
-                                        ),
+                                      Image.network(
+                                        snapshot.data![index].productImages
+                                            .first.src,
+                                        height: 200,
+                                        width: 200,
                                       ),
                                       Flexible(
                                         child: Text(

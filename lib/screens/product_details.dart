@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:ecommerce_mobile/models/product_model.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/widgets/my_appbar.dart';
@@ -49,7 +50,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget build(BuildContext context) {
     CartProvider cart = Provider.of<CartProvider>(context);
 
-
     return FutureBuilder(
       future: fetchProduct(),
       builder: (BuildContext context, AsyncSnapshot<ProductModel?> snapshot) {
@@ -62,11 +62,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 shrinkWrap: true,
                 physics: ScrollPhysics(),
                 slivers: <Widget>[
-
-                  SliverToBoxAdapter(child: CustomAppBar(
-                      context, Icons.shopping_bag_rounded,
-                      snapshot.data!.productName)),
-
+                  SliverToBoxAdapter(
+                      child: CustomAppBar(context, Icons.shopping_bag_rounded,
+                          snapshot.data!.productName)),
                   SliverToBoxAdapter(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -80,28 +78,26 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   imageUrl: item.src,
                                   imageBuilder: (context, imageProvider) =>
                                       Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.scaleDown,
-                                          ),
-                                        ),
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.scaleDown,
                                       ),
-                                  placeholder: (context, url) =>
-                                      Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                  errorWidget: (context, url, error) =>
-                                      Center(
-                                        child: Column(
-                                          mainAxisAlignment:
+                                    ),
+                                  ),
+                                  placeholder: (context, url) => Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                  errorWidget: (context, url, error) => Center(
+                                    child: Column(
+                                      mainAxisAlignment:
                                           MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.error),
-                                            Text("Resim Yüklenemedi!"),
-                                          ],
-                                        ),
-                                      ),
+                                      children: [
+                                        Icon(Icons.error),
+                                        Text("Resim Yüklenemedi!"),
+                                      ],
+                                    ),
+                                  ),
                                 );
                               }).toList(),
                               carouselController: _controller,
@@ -123,8 +119,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               right: 0,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: snapshot.data!
-                                    .productImages
+                                children: snapshot.data!.productImages
                                     .asMap()
                                     .entries
                                     .map((entry) {
@@ -181,8 +176,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                       MaterialButton(
                                         onPressed: () {
                                           setState(() {
-                                            if (adet > 1)
-                                              adet--;
+                                            if (adet > 1) adet--;
                                           });
                                         },
                                         child: Icon(Icons.remove,
@@ -190,10 +184,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                         color: Colors.grey.shade300,
                                         textColor: Colors.white,
                                         clipBehavior:
-                                        Clip.antiAliasWithSaveLayer,
+                                            Clip.antiAliasWithSaveLayer,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                          BorderRadius.circular(8),
+                                              BorderRadius.circular(8),
                                         ),
                                         height: 40,
                                         minWidth: 40,
@@ -223,10 +217,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                         color: Colors.grey.shade300,
                                         textColor: Colors.white,
                                         clipBehavior:
-                                        Clip.antiAliasWithSaveLayer,
+                                            Clip.antiAliasWithSaveLayer,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                          BorderRadius.circular(8),
+                                              BorderRadius.circular(8),
                                         ),
                                         height: 40,
                                         minWidth: 40,
@@ -243,19 +237,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   Flexible(
                                     child: MaterialButton(
                                       onPressed: () {
-                                        cart.addItem(
-                                            snapshot.data!.productId,
-                                            snapshot.data!.productName,
-                                            snapshot.data!.sellingPrice,
-                                            snapshot.data!.discountedPrice,
-                                            1,
-                                            snapshot.data!.isDiscounted,
-                                            "",
-                                        );
+                                        cart.insertItem(snapshot.data!.productId);
                                       },
                                       child: Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           Icon(Icons.shopping_basket_rounded),
                                           SizedBox(width: 10),

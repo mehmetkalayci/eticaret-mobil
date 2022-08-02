@@ -1,18 +1,18 @@
+import 'package:ecommerce_mobile/models/cart_model.dart';
+import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 class BasketItem extends StatelessWidget {
-  const BasketItem({Key? key, required this.productName, required this.thumbImageUrl, required this.sellingPrice, required this.discountedPrice, required this.isDiscounted}) : super(key: key);
+  const BasketItem({Key? key, required this.cartItem}) : super(key: key);
 
-  final String productName;
-  final String thumbImageUrl;
-  final double sellingPrice;
-  final double discountedPrice;
-  final bool isDiscounted;
-
+  final CartModel cartItem;
 
   @override
   Widget build(BuildContext context) {
+    CartProvider cart = Provider.of<CartProvider>(context, listen: false);
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
@@ -29,12 +29,14 @@ class BasketItem extends StatelessWidget {
             width: 100,
             height: 100,
             alignment: Alignment.topCenter,
-            child: Image.network(
-              this.thumbImageUrl,
-              fit: BoxFit.cover,
-              height: 90,
-              width: 90,
-            ),
+            child: (cartItem.thumbSrc == null || cartItem.thumbSrc.trim() == '')
+                ? Image.asset('assets/images/noimage.jpg')
+                : Image.network(
+                    cartItem.thumbSrc,
+                    fit: BoxFit.cover,
+                    height: 90,
+                    width: 90,
+                  ),
           ),
           Flexible(
             child: Row(
@@ -45,7 +47,7 @@ class BasketItem extends StatelessWidget {
                     child: Column(
                   children: [
                     Text(
-                      this.productName,
+                      cartItem.productName,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -54,20 +56,24 @@ class BasketItem extends StatelessWidget {
                     Row(
                       children: [
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            cart.removeItem(cartItem.productId);
+                          },
                           icon: Icon(
                             Icons.remove_circle_outline_rounded,
                             color: Colors.black87,
                           ),
                           splashRadius: 10,
                         ),
-                        Text(" 1 "),
+                        Text(cartItem.pcs.toString()),
                         IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.add_circle_outline_rounded,
-                              color: Colors.black87,
-                            ),
+                          onPressed: () {
+                            cart.insertItem(cartItem.productId);
+                          },
+                          icon: Icon(
+                            Icons.add_circle_outline_rounded,
+                            color: Colors.black87,
+                          ),
                           splashRadius: 10,
                         )
                       ],
@@ -76,7 +82,9 @@ class BasketItem extends StatelessWidget {
                 )),
                 SizedBox(width: 5),
                 Text(
-                  this.isDiscounted ? this.discountedPrice.toString() : this.sellingPrice.toString(),
+                  cartItem.isDiscounted
+                      ? cartItem.discountedPrice.toString()
+                      : cartItem.sellingPrice.toString(),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
