@@ -1,26 +1,41 @@
+import 'package:ecommerce_mobile/models/user_model.dart';
+import 'package:ecommerce_mobile/screens/signup.dart';
+import 'package:ecommerce_mobile/screens/user_profile.dart';
+import 'package:ecommerce_mobile/services/api.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class UserRegisterPage extends StatefulWidget {
+final FirebaseAuth _auth = FirebaseAuth.instance;
+
+class SigninPage extends StatefulWidget {
   @override
-  _UserRegisterPageState createState() => _UserRegisterPageState();
+  _SigninPageState createState() => _SigninPageState();
 }
 
-class _UserRegisterPageState extends State<UserRegisterPage> {
+class _SigninPageState extends State<SigninPage> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController otpController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
-  String error = '';
   bool _smsRequested = false;
 
   String _phoneNumber = '';
   String _verificationId = '';
+  bool isLoading = false;
 
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {}
+  Future<void> _submitAndVerifyPhoneNumber() async {
+    if (_formKey.currentState!.validate()) {
+      if (!_smsRequested) {
+        _phoneNumber = '+90' + phoneController.text.replaceAll('-', '');
+
+        _verifyPhoneNumber();
+      }
+    }
   }
 
   String? _validateMobile(String value) {
@@ -33,6 +48,121 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
       return 'Geçerli bir telefon numarası girin!\nNumaranızı başında 0 olmadan girin.';
     }
     return null;
+  }
+
+  void _verifyPhoneNumber() async {
+    if (mounted)
+      setState(() {
+        isLoading = true;
+      });
+
+    final PhoneVerificationFailed verificationFailed =
+        (FirebaseAuthException authException) {
+      Fluttertoast.showToast(msg: authException.message.toString());
+    };
+
+    final PhoneCodeSent codeSent =
+        (String verificationId, int? forceResendingToken) async {
+      Fluttertoast.showToast(
+          msg: "Telefonunuza SMS ile doğrulama kodunu gönderdik.");
+      setState(() {
+        _verificationId = verificationId;
+        _smsRequested = true;
+      });
+    };
+
+    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
+        (String verificationId) {
+      _verificationId = verificationId;
+    };
+
+    PhoneVerificationCompleted verificationCompleted =
+        (PhoneAuthCredential phoneAuthCredential) async {
+      print("verificationCompleted");
+    };
+
+    await _auth
+        .verifyPhoneNumber(
+            phoneNumber: _phoneNumber,
+            timeout: const Duration(seconds: 60),
+            verificationCompleted: verificationCompleted,
+            verificationFailed: verificationFailed,
+            codeSent: codeSent,
+            codeAutoRetrievalTimeout: codeAutoRetrievalTimeout)
+        .then((value) {
+      print("then");
+    }).catchError((onError) {
+      print(onError);
+    });
+
+    if (mounted)
+      setState(() {
+        isLoading = false;
+      });
+  }
+
+  void _signInWithPhoneNumber(String otp) async {
+    _showProgressDialog(true);
+
+    try {
+      final AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId,
+        smsCode: otp,
+      );
+      final User? user = (await _auth.signInWithCredential(credential)).user;
+      final User? currentUser = _auth.currentUser;
+      assert(user?.uid == currentUser?.uid);
+
+      final prefs = await SharedPreferences.getInstance();
+
+      _showProgressDialog(false);
+      if (user != null) {
+        await prefs.setString('userUid', user.uid);
+        await prefs.setString('userPhone', this._phoneNumber);
+
+        // todo kullanıcıyı db ye kaydet
+
+        print(user);
+
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => UserProfilePage(
+        //         //user: user,
+        //         ),
+        //   ),
+        // );
+      } else {
+        Fluttertoast.showToast(msg: "Oturum açılamadı!");
+      }
+    } on FirebaseAuthException catch (authError) {
+      if (authError.code == 'invalid-verification-code') {
+        Fluttertoast.showToast(
+            msg: "Hatalı doğrulama kodu girdiniz!",
+            toastLength: Toast.LENGTH_LONG);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Hata oluştu :(\n" + authError.message.toString(),
+            toastLength: Toast.LENGTH_LONG);
+      }
+      _showProgressDialog(false);
+    } catch (e) {
+      Fluttertoast.showToast(
+          msg: "Hata oluştu :(\n" + e.toString(),
+          toastLength: Toast.LENGTH_LONG);
+      _showProgressDialog(false);
+    }
+  }
+
+  _showProgressDialog(bool isloadingstate) {
+    if (mounted)
+      setState(() {
+        isLoading = isloadingstate;
+      });
+  }
+
+  verifyOtp(String otpText) async {
+    _signInWithPhoneNumber(otpText);
   }
 
   @override
@@ -50,91 +180,16 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-
-                  Image.asset("assets/images/logo.png", height: 40),
-
                   SizedBox(height: 50),
-
-                  Text(
-                    "Kaydol",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                  Center(
+                    child: Image.asset(
+                      "assets/images/logo.png",
+                      height: 40,
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
-                  Visibility(
-                    visible: error.isNotEmpty,
-                    child: MaterialBanner(
-                      backgroundColor: Theme.of(context).errorColor,
-                      content: Text(error),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              error = '';
-                            });
-                          },
-                          child: const Text(
-                            ' X ',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        )
-                      ],
-                      contentTextStyle: const TextStyle(color: Colors.white),
-                      padding: const EdgeInsets.all(10),
-                    ),
-                  ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 50),
                   TextFormField(
-                    style: TextStyle(fontSize: 18),
-                    cursorColor: Colors.black,
-                    cursorWidth: 0.75,
-                    decoration: InputDecoration(
-                      labelText: ("Ad Soyad"),
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      hintText: 'Ad Soyad',
-                      prefixIcon: Icon(
-                        Icons.person_rounded,
-                        color: Colors.grey,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                    ),
-                    textInputAction: TextInputAction.next,
-                    onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                    validator: (val) {},
-                  ),
-                  SizedBox(height: 15),
-                  TextFormField(
-                    style: TextStyle(fontSize: 18),
-                    cursorColor: Colors.black,
-                    cursorWidth: 0.75,
-                    decoration: InputDecoration(
-                      labelText: ("Firma Adı"),
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      hintText: 'Firma Adı',
-                      prefixIcon: Icon(
-                        Icons.business_center_rounded,
-                        color: Colors.grey,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                    ),
-                    textInputAction: TextInputAction.next,
-                    onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                    validator: (val) {},
-                  ),
-                  SizedBox(height: 15),
-                  TextFormField(
-                    maxLength: 12,
-                    maxLengthEnforcement: MaxLengthEnforcement.none,
                     style: TextStyle(fontSize: 18),
                     cursorColor: Colors.black,
                     cursorWidth: 0.75,
@@ -163,33 +218,8 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                     },
                   ),
                   SizedBox(height: 15),
-                  TextFormField(
-                    style: TextStyle(fontSize: 18),
-                    minLines: 2,
-                    maxLines: 2,
-                    cursorColor: Colors.black,
-                    cursorWidth: 0.75,
-                    decoration: InputDecoration(
-                      labelText: ("Adres"),
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      hintText: 'Adres',
-                      prefixIcon: Icon(
-                        Icons.pin_drop_rounded,
-                        color: Colors.grey,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                    ),
-                    textInputAction: TextInputAction.next,
-                    onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                    validator: (val) {},
-                  ),
-                  SizedBox(height: 15),
                   Visibility(
-                    visible: false,
+                    visible: _smsRequested,
                     child: TextFormField(
                       style: TextStyle(fontSize: 18),
                       cursorColor: Colors.black,
@@ -202,8 +232,9 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        hintText: "Doğrulama Kodu",
-                        prefixIcon: Icon(Icons.password_rounded, color: Colors.grey),
+                        hintText: 'Doğrulama Kodu',
+                        prefixIcon:
+                            Icon(Icons.password_rounded, color: Colors.grey),
                         filled: true,
                       ),
                       textInputAction: TextInputAction.next,
@@ -219,12 +250,14 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                     ),
                   ),
                   SizedBox(height: 15),
-
-
-
-
                   MaterialButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (_smsRequested) {
+                        verifyOtp(otpController.text.trim());
+                      } else {
+                        _submitAndVerifyPhoneNumber();
+                      }
+                    },
                     height: 60,
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
@@ -239,23 +272,28 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(Icons.person_add_rounded),
+                        Icon(Icons.login),
                         SizedBox(width: 10),
                         Text(
-                          "Kaydol",
+                          "Giriş Yap",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w400),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ],
                     ),
                   ),
-
                   SizedBox(height: 15),
-
                   Center(
                     child: MaterialButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SignupPage(),
+                          ),
+                        );
                       },
                       height: 60,
                       focusElevation: 0,
@@ -266,8 +304,10 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        "Geri",
-                        style: TextStyle(fontSize: 18),
+                        "Kaydol",
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                   ),

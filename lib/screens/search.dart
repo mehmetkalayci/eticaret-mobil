@@ -47,8 +47,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: fetchSearchResult(query),
-        builder: (BuildContext context,
-            AsyncSnapshot<List<SearchResultModel>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<List<SearchResultModel>> snapshot) {
           if (snapshot.hasData) {
             return CustomScrollView(
               physics: ScrollPhysics(),

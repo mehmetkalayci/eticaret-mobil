@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class BasketItem extends StatelessWidget {
-  const BasketItem({Key? key}) : super(key: key);
+  const BasketItem({Key? key, required this.productName, required this.thumbImageUrl, required this.sellingPrice, required this.discountedPrice, required this.isDiscounted}) : super(key: key);
+
+  final String productName;
+  final String thumbImageUrl;
+  final double sellingPrice;
+  final double discountedPrice;
+  final bool isDiscounted;
+
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +30,7 @@ class BasketItem extends StatelessWidget {
             height: 100,
             alignment: Alignment.topCenter,
             child: Image.network(
-              "https://migros-dali-storage-prod.global.ssl.fastly.net/macrocenter/product/7037172/07037172-3c38fc-1650x1650.jpg",
+              this.thumbImageUrl,
               fit: BoxFit.cover,
               height: 90,
               width: 90,
@@ -38,7 +45,7 @@ class BasketItem extends StatelessWidget {
                     child: Column(
                   children: [
                     Text(
-                      "Standart Fit Günlük Rahat ",
+                      this.productName,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -69,7 +76,7 @@ class BasketItem extends StatelessWidget {
                 )),
                 SizedBox(width: 5),
                 Text(
-                  "119,50 TL",
+                  this.isDiscounted ? this.discountedPrice.toString() : this.sellingPrice.toString(),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

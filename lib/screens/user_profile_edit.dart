@@ -50,8 +50,7 @@ class _UserProfileEditPageState extends State<UserProfileEditPage> {
           shrinkWrap: true,
           physics: ScrollPhysics(),
           slivers: <Widget>[
-            MyAppBar(
-                "Bilgilerini Düzenle", Icon(Icons.person_rounded), context),
+            CustomAppBar(context, Icons.person_rounded,"Bilgileri Düzenle"),
             SliverToBoxAdapter(
               child: Form(
                 autovalidateMode: AutovalidateMode.onUserInteraction,

@@ -1,6 +1,8 @@
 import 'package:ecommerce_mobile/widgets/my_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class UserPromotionPage extends StatefulWidget {
   const UserPromotionPage({Key? key}) : super(key: key);
@@ -17,7 +19,7 @@ class _UserPromotionPageState extends State<UserPromotionPage> {
         shrinkWrap: true,
         physics: ScrollPhysics(),
         slivers: <Widget>[
-          MyAppBar("Bana Özel", Icon(Icons.discount_rounded), context),
+          CustomAppBar( context, Icons.discount_rounded, "Bana Özel"),
           SliverAnimatedList(
             initialItemCount: 5,
             itemBuilder: (context, index, animation) => SizeTransition(
@@ -37,7 +39,10 @@ class _UserPromotionPageState extends State<UserPromotionPage> {
                   ],
                 ),
                 child: ListTile(
-                  onTap: () {},
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "GTSD5J78S"));
+                    Fluttertoast.showToast(msg: "GTSD5J78S kodunuz kopyalandı!");
+                  },
                   title: Text(
                     "Merhaba, size özel %20 indirim kupon kodunuz: GTSD5J78S",
                     style: TextStyle(

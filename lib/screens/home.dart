@@ -5,12 +5,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_mobile/models/homepage_model.dart';
 import 'package:ecommerce_mobile/screens/product_list.dart';
-import 'package:ecommerce_mobile/widgets/my_error_widget.dart';
-import 'package:ecommerce_mobile/widgets/my_loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
+import 'package:page_transition/page_transition.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -20,8 +18,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-
   int _current = 0;
   final CarouselController _controller = CarouselController();
 
@@ -30,7 +26,8 @@ class _HomePageState extends State<HomePage> {
   late Future<HomepageModel> _homepageModelFuture;
 
   Future<HomepageModel> fetchHomepage() async {
-    final response = await http.get(Uri.parse('http://qsres.com/api/mobileapp/home'));
+    final response =
+    await http.get(Uri.parse('http://qsres.com/api/mobileapp/home'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
@@ -54,7 +51,6 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder(
       future: _homepageModelFuture,
       builder: (BuildContext context, AsyncSnapshot<HomepageModel> snapshot) {
-
         if (snapshot.hasData) {
           return CustomScrollView(
             slivers: [
@@ -119,8 +115,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     trayBuilder: (index) {
                       return AdvStoryTray(
-                        username:
-                            Text(snapshot.data!.stories[index].storyTitle, style: TextStyle(fontSize: 14)),
+                        username: Text(snapshot.data!.stories[index].storyTitle,
+                            style: TextStyle(fontSize: 14)),
                         url: snapshot.data!.stories[index].storyCoverImgSrc,
                       );
                     },
@@ -220,7 +216,7 @@ class _HomePageState extends State<HomePage> {
                     childAspectRatio: 1,
                   ),
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) {
+                        (context, index) {
                       return MaterialButton(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -236,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                             context,
                             PageTransition(
                               type: PageTransitionType.fade,
-                              child: ProductListPage(),
+                              child: ProductListPage(mainCategoryId: index),
                             ),
                           );
                         },
@@ -267,11 +263,11 @@ class _HomePageState extends State<HomePage> {
               const SliverPadding(padding: EdgeInsets.symmetric(vertical: 30))
             ],
           );
+        } else if (snapshot.hasError) {
+          //return MyErrorWidget(context);
         }
-        else if (snapshot.hasError) {
-          return MyErrorWidget(context);
-        }
-        return MyLoadingWidget(context);
+        //return MyLoadingWidget(context);
+        return Center(child: CircularProgressIndicator());
       },
     );
   }

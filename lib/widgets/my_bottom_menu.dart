@@ -1,10 +1,10 @@
-import 'package:ecommerce_mobile/providers/menu_selection_provider.dart';
+import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 Widget MyBottomMenu(BuildContext context) {
   MenuSelectionProvider menuSelectionService =  Provider.of<MenuSelectionProvider>(context);
-  /*
+
   return Positioned(
     bottom: 30,
     left: 30,
@@ -72,9 +72,9 @@ Widget MyBottomMenu(BuildContext context) {
       ),
     ),
   );
-  */
 
-  return BottomNavigationBar(
+
+  /*return BottomNavigationBar(
     type: BottomNavigationBarType.fixed,
     showSelectedLabels: false,
     showUnselectedLabels: false,
@@ -120,5 +120,5 @@ Widget MyBottomMenu(BuildContext context) {
         label: 'Hesabım',
       ),
     ],
-  );
+  );*/
 }

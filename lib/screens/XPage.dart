@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ecommerce_mobile/models/category_model.dart';
 import 'package:ecommerce_mobile/widgets/my_error_widget.dart';
 import 'package:ecommerce_mobile/widgets/my_loading_widget.dart';
 import 'package:flutter/material.dart';

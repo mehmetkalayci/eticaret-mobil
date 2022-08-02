@@ -1,4 +1,6 @@
+import 'package:ecommerce_mobile/screens/signin.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Widget MyDrawerMenu(BuildContext context) {
@@ -11,8 +13,8 @@ Widget MyDrawerMenu(BuildContext context) {
         ),
         child: Center(
           child: Image.asset(
-            "assets/images/logo.png",
-            height: 50,
+            "assets/images/logo-drawer.png",
+            height: 85,
           ),
         ),
         margin: EdgeInsets.zero,
@@ -52,6 +54,37 @@ Widget MyDrawerMenu(BuildContext context) {
         onTap: () {},
       ),
       Divider(height: 0),
+      ListTile(
+        minLeadingWidth: 20,
+        leading: Icon(Icons.login),
+        title: const Text('Üye Ol'),
+        onTap: () {
+          Navigator.push(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: SigninPage(),
+            ),
+          );
+        },
+      ),
+      Divider(height: 0),
+      ListTile(
+        minLeadingWidth: 20,
+        leading: Icon(Icons.discount_rounded),
+        title: const Text('Giriş Yap'),
+        onTap: () {
+          // Navigator.push(
+          //   context,
+          //   PageTransition(
+          //     type: PageTransitionType.fade,
+          //     child: UserLoginPage(),
+          //   ),
+          // );
+        },
+      ),
+      Divider(height: 0),
+
 
       Spacer(),
       Divider(height: 0),

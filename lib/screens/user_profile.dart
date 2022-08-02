@@ -18,7 +18,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       shrinkWrap: true,
       physics: ScrollPhysics(),
       slivers: <Widget>[
-        MyAppBar("Hesabım", Icon(Icons.person_rounded), context),
+        CustomAppBar(context, Icons.person_rounded, "Hesabım"),
         SliverToBoxAdapter(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +134,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         Spacer(),
                         Icon(Icons.arrow_forward_rounded)
                       ],
-                    )),
+                    ),
+                ),
               ),
               // Padding(
               //   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),

@@ -2,25 +2,23 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:ecommerce_mobile/providers/basket_provider.dart';
+import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/category_data_provider.dart';
-import 'package:ecommerce_mobile/providers/menu_selection_provider.dart';
-import 'package:ecommerce_mobile/screens/home.dart';
+import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/main.dart';
 import 'package:ecommerce_mobile/screens/XPage.dart';
-import 'package:ecommerce_mobile/screens/noconnection.dart';
+import 'package:ecommerce_mobile/screens/noconn.dart';
+import 'package:ecommerce_mobile/screens/yy.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 
 FirebaseMessaging messaging = FirebaseMessaging.instance;
-bool _showOnboarding = false;
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
@@ -29,10 +27,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  final SharedPreferences _prefs = await SharedPreferences.getInstance();
-  _showOnboarding = _prefs.getBool("onboarding") ?? false;
-  await _prefs.setBool("onboarding", true);
 
   // initialize firebase app
   await Firebase.initializeApp(
@@ -90,7 +84,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   //#region Connectivity
 
   ConnectivityResult _connectionStatus = ConnectivityResult.wifi;
@@ -103,7 +96,8 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     initConnectivity();
 
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
   @override
@@ -112,7 +106,7 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-    // Platform messages are asynchronous, so we initialize in an async method.
+  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initConnectivity() async {
     late ConnectivityResult result;
     // Platform messages may fail, so we use a try/catch PlatformException.
@@ -141,159 +135,56 @@ class _MyAppState extends State<MyApp> {
 
   //#endregion
 
+  MaterialColor colorCustom = MaterialColor(0xFF015791, color);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<MenuSelectionProvider>(create: (context) => MenuSelectionProvider()),
-        ChangeNotifierProvider<CategoryDataProvider>(create: (_) => CategoryDataProvider()),
-        ChangeNotifierProvider<BasketProvider>(create: (_) => BasketProvider()),
+        ChangeNotifierProvider<MenuProvider>(
+          create: (context) => MenuProvider(),
+        ),
+        ChangeNotifierProvider<CategoryDataProvider>(
+          create: (_) => CategoryDataProvider(),
+        ),
+        ChangeNotifierProvider<CartProvider>(
+          create: (_) => CartProvider(),
+        ),
       ],
       child: MaterialApp(
-        title: 'Malzemecim',
-        theme: ThemeData(
-          useMaterial3: true,
-          fontFamily: 'Poppins',
-          primaryColor: Color.fromARGB(255, 1, 87, 145),
-          secondaryHeaderColor: Color.fromARGB(255, 1, 87, 145),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          textTheme: const TextTheme(
-            bodyText2: TextStyle(fontSize: 16.0, fontFamily: 'Poppins'),
-            button: TextStyle(fontSize: 13.0, fontFamily: 'Poppins'),
+          title: 'Malzemecim',
+          theme: ThemeData(
+            useMaterial3: true,
+            fontFamily: 'Poppins',
+            primaryColor: Color.fromARGB(255, 1, 87, 145),
+            secondaryHeaderColor: Color.fromARGB(255, 1, 87, 145),
+            primarySwatch: colorCustom,
+            bottomAppBarColor: colorCustom,
+            scaffoldBackgroundColor: Colors.white,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            textTheme: const TextTheme(
+              bodyText2: TextStyle(fontSize: 16.0, fontFamily: 'Poppins'),
+              button: TextStyle(fontSize: 13.0, fontFamily: 'Poppins'),
+            ),
           ),
-        ),
-        debugShowCheckedModeBanner: false,
-        debugShowMaterialGrid: false,
-        home: (_connectionStatus == ConnectivityResult.none)
-            ? NoConnectionPage()
-            : Scaffold(body: HomePage()),
-      ),
+          debugShowCheckedModeBanner: false,
+          debugShowMaterialGrid: false,
+          home: (_connectionStatus == ConnectivityResult.none)
+              ? NoConnPage()
+              : MainPage()),
     );
   }
 }
 
-
-//
-// import 'dart:async';
-// import 'dart:convert';
-//
-// import 'package:ecommerce_mobile/widgets/my_error_widget.dart';
-// import 'package:ecommerce_mobile/widgets/my_loading_widget.dart';
-// import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-//
-// import 'models/homepage_model.dart';
-//
-// void main() => runApp(MyApp());
-//
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Demo',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: MyHomePage(title: 'Flutter Demo Home Page'),
-//     );
-//   }
-// }
-//
-// class MyHomePage extends StatefulWidget {
-//   MyHomePage({required this.title});
-//
-//   final String title;
-//
-//   @override
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
-//
-// class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-//   List<CategoryModel> menuCategoryList = [];
-//   List<String> subCategories = [];
-//
-//   Future<List<CategoryModel>> fetchCategories() async {
-//     final response = await http.get(Uri.parse('http://qsres.com/api/mobileapp/categories'));
-//
-//     if (response.statusCode == 200) {
-//       //return CategoryModel.fromJson(jsonDecode(response.body));
-//       List jsonResponse = json.decode(response.body);
-//       return jsonResponse.map((item) => new CategoryModel.fromJson(item)).toList();
-//     } else {
-//       throw Exception('Failed to load categories');
-//     }
-//   }
-//
-//   void setSubCats(index) {
-//     this.subCategories.clear();
-//     if (this.menuCategoryList.elementAt(index).inverseParentCategory.isNotEmpty) {
-//       this.subCategories.addAll(this.menuCategoryList[index].inverseParentCategory.map((e) => e['name']));
-//     }
-//     setState(() {});
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: SafeArea(
-//         child: FutureBuilder(
-//             future: fetchCategories(),
-//             builder: (context, AsyncSnapshot snapshot) {
-//               if (!snapshot.hasData) {
-//                 return Center(child: CircularProgressIndicator());
-//               } else {
-//                 this.menuCategoryList.clear();
-//                 this.menuCategoryList.addAll(snapshot.data);
-//                 return Column(
-//                   children: [
-//                     Container(
-//                       height: 60,
-//                       color: Colors.red,
-//                       child: ListView.builder(
-//                           physics: BouncingScrollPhysics(),
-//                           shrinkWrap: true,
-//                           itemCount: snapshot.data.length,
-//                           scrollDirection: Axis.horizontal,
-//                           itemBuilder: (BuildContext context, int index) {
-//                             return Padding(
-//                               padding: EdgeInsets.all(10),
-//                               child: MaterialButton(
-//                                 shape: RoundedRectangleBorder(
-//                                     borderRadius: BorderRadius.circular(50),
-//                                 ),
-//                                 onPressed: () {
-//                                   setSubCats(index);
-//                                 },
-//                                 child: Text('${snapshot.data[index].name}'),
-//                               ),
-//                             );
-//                           }),
-//                     ),
-//                     Visibility(
-//                       visible: this.subCategories.length > 0,
-//                       child: Container(
-//                         height: 60,
-//                         color: Colors.blueGrey,
-//                         child: ListView(
-//                           shrinkWrap: true,
-//                           physics: BouncingScrollPhysics(),
-//                           scrollDirection: Axis.horizontal,
-//                           children: this
-//                               .subCategories
-//                               .map(
-//                                 (e) => MaterialButton(
-//                                     onPressed: () {},
-//                                     child: Text(e.toString())),
-//                               )
-//                               .toList(),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 );
-//               }
-//             }),
-//       ),
-//     );
-//   }
-// }
+Map<int, Color> color = {
+  50: Color.fromRGBO(1, 87, 145, .1),
+  100: Color.fromRGBO(1, 87, 145, .2),
+  200: Color.fromRGBO(1, 87, 145, .3),
+  300: Color.fromRGBO(1, 87, 145, .4),
+  400: Color.fromRGBO(1, 87, 145, .5),
+  500: Color.fromRGBO(1, 87, 145, .6),
+  600: Color.fromRGBO(1, 87, 145, .7),
+  700: Color.fromRGBO(1, 87, 145, .8),
+  800: Color.fromRGBO(1, 87, 145, .9),
+  900: Color.fromRGBO(1, 87, 145, 1),
+};
