@@ -9,9 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final _storage = SharedPreferences.getInstance();
 
-
-Future<List<CartModel>> getCartItems() async {
-
+Future<List<CartModel>?> getCartItems() async {
   Object? token = await (await _storage).get("accessToken");
 
   final response = await http.get(
@@ -23,14 +21,11 @@ Future<List<CartModel>> getCartItems() async {
     },
   );
 
-  print(response.body);
-
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((item) => new CartModel.fromJson(item)).toList();
   } else {
-    print(response.body);
-    throw Exception("Sepetteki ürünler getirilemedi!");
+    return null;
   }
 }
 
@@ -55,16 +50,16 @@ Future<void> addToCart(int productId, int pcs) async {
     encoding: encoding,
   );
 
-  print(response.body);
-
   if (response.statusCode == 200) {
     Fluttertoast.showToast(msg: "Ürün sepete eklendi!");
+  } else if (response.statusCode == 401) {
+    Fluttertoast.showToast(msg: "Sepeti kullanmak için oturum açın!");
   } else {
-    throw Exception("Ürün sepete eklenemedi!");
+    Fluttertoast.showToast(msg: response.body);
   }
 }
 
-Future<CartModel> deleteAnItemCompletely(int productId) async {
+Future<void> deleteAnItemCompletely(int productId) async {
   Object? token = await (await _storage).get("accessToken");
 
   final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
@@ -86,30 +81,29 @@ Future<CartModel> deleteAnItemCompletely(int productId) async {
   );
 
   if (response.statusCode == 200) {
-    return CartModel.fromJson(json.decode(response.body));
-  } else if (response.statusCode == 404) {
-    throw Exception("Ürün zaten sepette yok!");
+  } else if (response.statusCode == 401) {
+    Fluttertoast.showToast(msg: "Sepeti kullanmak için oturum açın!");
   } else {
-    print(response.body);
-    throw Exception("Ürün sepeten silinemedi!");
+    Fluttertoast.showToast(msg: response.body);
   }
 }
 
 class CartProvider with ChangeNotifier {
   List<CartModel> cartItems = [];
 
-  bool loading = false;
 
-  loadItems() {
-    loading = true;
-    getCartItems().then((value) {
-      cartItems = value;
-      loading = false;
-      notifyListeners();
+  loadItems() async {
+     await getCartItems().then((value) {
+       if(value != null) {
+         cartItems.clear();
+         value.forEach((element) {
+           cartItems.add(element);
+         });
+       }
     });
   }
 
-  insertItem(int productId) {
+  insertItem(int productId, int adet) {
     addToCart(productId, 1).then((value) => loadItems());
   }
 
@@ -122,6 +116,12 @@ class CartProvider with ChangeNotifier {
         total += cartItem.sellingPrice * cartItem.pcs;
       }
     });
+    return total;
+  }
+
+  int get getTotalItemCount {
+    int total = 0;
+    cartItems.forEach((cartItem) => total += cartItem.pcs);
     return total;
   }
 

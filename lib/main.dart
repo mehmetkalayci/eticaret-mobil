@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/category_data_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
@@ -154,6 +155,9 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider<CartProvider>(
           create: (_) => CartProvider(),
+        ),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
         ),
       ],
       child: MaterialApp(

@@ -4,10 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
-class BasketItem extends StatelessWidget {
+class BasketItem extends StatefulWidget {
   const BasketItem({Key? key, required this.cartItem}) : super(key: key);
 
   final CartModel cartItem;
+
+  @override
+  State<BasketItem> createState() => _BasketItemState();
+}
+
+class _BasketItemState extends State<BasketItem> {
+
+  // DateTime loginClickTime;
+  //
+  // bool isRedundentClick(DateTime currentTime){
+  //   if(loginClickTime==null){
+  //     loginClickTime = currentTime;
+  //     print("first click");
+  //     return false;
+  //   }
+  //   print('diff is ${currentTime.difference(loginClickTime).inSeconds}');
+  //   if(currentTime.difference(loginClickTime).inSeconds<10){//set this difference time in seconds
+  //     return true;
+  //   }
+  //
+  //   loginClickTime = currentTime;
+  //   return false;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +55,10 @@ class BasketItem extends StatelessWidget {
               height: 90,
               alignment: Alignment.topCenter,
               child:
-                  (cartItem.thumbSrc == null || cartItem.thumbSrc.trim() == '')
+                  (widget.cartItem.thumbSrc == null || widget.cartItem.thumbSrc.trim() == '')
                       ? Image.asset('assets/images/noimage.jpg')
                       : Image.network(
-                          cartItem.thumbSrc,
+                          widget.cartItem.thumbSrc,
                           fit: BoxFit.cover,
                         ),
             ),
@@ -52,7 +75,7 @@ class BasketItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      cartItem.productName,
+                      widget.cartItem.productName,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -64,7 +87,15 @@ class BasketItem extends StatelessWidget {
                       children: [
                         IconButton(
                           onPressed: () {
-                            cart.removeItem(cartItem.productId);
+                            Future.delayed(const Duration(milliseconds: 2000), () {
+                              Fluttertoast.showToast(msg: "az bekle ");
+                              setState(() {
+                                cart.removeItem(widget.cartItem.productId);
+                                // Here you can write your code for open new view
+                              });
+
+                            });
+
                           },
                           icon: Icon(
                             Icons.remove_circle_outline_rounded,
@@ -73,10 +104,18 @@ class BasketItem extends StatelessWidget {
                           padding: EdgeInsets.zero,
                           splashRadius: 10,
                         ),
-                        Text(cartItem.pcs.toString()),
+                        Text(widget.cartItem.pcs.toString()),
                         IconButton(
                           onPressed: () {
-                            cart.insertItem(cartItem.productId);
+                            Future.delayed(const Duration(milliseconds: 2000), () {
+                              Fluttertoast.showToast(msg: "az bekle ");
+                              setState(() {
+                                cart.insertItem(widget.cartItem.productId, 1);
+                                // Here you can write your code for open new view
+                              });
+
+                            });
+
                           },
                           icon: Icon(
                             Icons.add_circle_outline_rounded,
@@ -90,9 +129,9 @@ class BasketItem extends StatelessWidget {
                 )),
                 SizedBox(width: 5),
                 Text(
-                  cartItem.isDiscounted
-                      ? cartItem.discountedPrice.toString() +" ₺"
-                      : cartItem.sellingPrice.toString() + " ₺",
+                  widget.cartItem.isDiscounted
+                      ? widget.cartItem.discountedPrice.toString() +" ₺"
+                      : widget.cartItem.sellingPrice.toString() + " ₺",
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

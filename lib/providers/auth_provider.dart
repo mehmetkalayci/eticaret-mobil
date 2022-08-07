@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,14 +26,10 @@ class AuthProvider with ChangeNotifier {
   bool _isLoggedIn = false;
   bool get getIsLoggedIn => _isLoggedIn;
 
-
-  IsLoggeIn() {
+  IsLoggedIn() {
     checkToken().then((value) {
       _isLoggedIn = value;
       notifyListeners();
     });
   }
-
-
-
 }

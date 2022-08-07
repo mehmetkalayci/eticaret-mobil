@@ -110,7 +110,8 @@ class _SearchPageState extends State<SearchPage> {
                                   return ListTile(
                                     onTap: () {
 
-                                      menu.setMenuIndex(6, productId: element.productId);
+                                      menu.setProductId(element.productId);
+                                      menu.setCurrentPage(6);
 
 
                                       // Navigator.push(

@@ -82,7 +82,7 @@ class _SignupPageState extends State<SignupPage> {
 
       if (response.statusCode == 200) {
         Fluttertoast.showToast(msg: response.body, toastLength: Toast.LENGTH_LONG);
-        menu.setMenuIndex(3);
+        menu.setCurrentPage(3);
       } else {
         HataModel hata = HataModel.fromJson(jsonDecode(response.body));
         Fluttertoast.showToast(msg: hata.detail, toastLength: Toast.LENGTH_LONG);

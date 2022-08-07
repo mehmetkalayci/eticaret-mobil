@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({Key? key}) : super(key: key);
@@ -26,6 +27,8 @@ class _PaymentPageState extends State<PaymentPage> {
 
   final _formKey = GlobalKey<FormState>();
 
+  final _storage = SharedPreferences.getInstance();
+
 
 
   void completePayment() async {
@@ -42,6 +45,9 @@ class _PaymentPageState extends State<PaymentPage> {
         isLoading = true;
       });
 
+      Object? token = await (await _storage).get("accessToken");
+
+
       final response =
           await http.post(Uri.parse('http://qsres.com/api/mobileapp/purchase'),
               body: json.encode({
@@ -51,7 +57,12 @@ class _PaymentPageState extends State<PaymentPage> {
                 "orderNotes": noteController.text.trim()
               }),
               encoding: Encoding.getByName("utf-8"),
-              headers: {'Content-Type': 'application/json'});
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ${token.toString()}',
+          });
+
 
       if (response.statusCode == 200) {
         // todo: belki cart i temizlemek gerekir

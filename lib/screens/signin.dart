@@ -107,7 +107,7 @@ class _SigninPageState extends State<SigninPage> {
             LoginResponseModel.fromJson(json.decode(response.body));
 
         await (await _storage).setString('accessToken', responseModel.token);
-        menu.setMenuIndex(0);
+        menu.setCurrentPage(0);
       } else {
         HataModel hata = HataModel.fromJson(jsonDecode(response.body));
         Fluttertoast.showToast(msg: hata.detail);
@@ -252,7 +252,7 @@ class _SigninPageState extends State<SigninPage> {
                   Center(
                     child: MaterialButton(
                       onPressed: () {
-                        menu.setMenuIndex(4);
+                        menu.setCurrentPage(4);
                         // Navigator.push(
                         //   context,
                         //   MaterialPageRoute(

@@ -1,4 +1,5 @@
 import 'package:badges/badges.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/signin.dart';
@@ -8,14 +9,15 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Widget MyDrawerMenu(BuildContext context) {
-  MenuProvider menu = Provider.of<MenuProvider>(context);
-  CartProvider cart = Provider.of<CartProvider>(context);
+    MenuProvider menu = Provider.of<MenuProvider>(context);
+    CartProvider cart = Provider.of<CartProvider>(context);
+    AuthProvider auth = Provider.of<AuthProvider>(context);
 
-  return Drawer(
-    child: Column(children: [
-      DrawerHeader(
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
+    return Drawer(
+      child: Column(children: [
+        DrawerHeader(
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
         ),
         child: Center(
           child: Image.asset(
@@ -30,7 +32,7 @@ Widget MyDrawerMenu(BuildContext context) {
         leading: Icon(Icons.home_rounded),
         title: const Text('Anasayfa'),
         onTap: () {
-          menu.setMenuIndex(0);
+          menu.setCurrentPage(0);
           Navigator.of(context).pop();
         },
       ),
@@ -40,7 +42,7 @@ Widget MyDrawerMenu(BuildContext context) {
         leading: Icon(Icons.search_rounded),
         title: const Text('Ürün Ara'),
         onTap: () {
-          menu.setMenuIndex(1);
+          menu.setCurrentPage(1);
           Navigator.of(context).pop();
         },
       ),
@@ -49,7 +51,7 @@ Widget MyDrawerMenu(BuildContext context) {
         minLeadingWidth: 20,
         leading: Badge(
           badgeContent: Text(
-            cart.cartItems.length.toString(),
+            cart.getTotalItemCount.toString(),
             style: TextStyle(
                 color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
           ),
@@ -57,7 +59,7 @@ Widget MyDrawerMenu(BuildContext context) {
         ),
         title: const Text('Sepet'),
         onTap: () {
-          menu.setMenuIndex(2);
+          menu.setCurrentPage(2);
           Navigator.of(context).pop();
         },
       ),
@@ -79,22 +81,23 @@ Widget MyDrawerMenu(BuildContext context) {
       //   onTap: () {},
       // ),
       Divider(height: 0),
-      ListTile(
-        minLeadingWidth: 20,
-        leading: Icon(Icons.login),
-        title: const Text('Kayıt Ol'),
-        onTap: () {
-          menu.setMenuIndex(4);
-          Navigator.of(context).pop();
-        },
-      ),
+      if (!auth.getIsLoggedIn)
+        ListTile(
+          minLeadingWidth: 20,
+          leading: Icon(Icons.login),
+          title: const Text('Kayıt Ol'),
+          onTap: () {
+            menu.setCurrentPage(4);
+            Navigator.of(context).pop();
+          },
+        ),
       Divider(height: 0),
       ListTile(
         minLeadingWidth: 20,
         leading: Icon(Icons.discount_rounded),
         title: const Text('Giriş Yap'),
         onTap: () {
-          menu.setMenuIndex(3);
+          menu.setCurrentPage(3);
           Navigator.of(context).pop();
         },
       ),

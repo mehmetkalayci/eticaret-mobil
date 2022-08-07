@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<HomepageModel> fetchHomepage() async {
     final response =
-    await http.get(Uri.parse('http://qsres.com/api/mobileapp/home'));
+        await http.get(Uri.parse('http://qsres.com/api/mobileapp/home'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
@@ -50,7 +50,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
 
     return FutureBuilder(
@@ -221,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                     childAspectRatio: 1,
                   ),
                   delegate: SliverChildBuilderDelegate(
-                        (context, index) {
+                    (context, index) {
                       return MaterialButton(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -233,31 +232,27 @@ class _HomePageState extends State<HomePage> {
                         highlightElevation: 0,
                         focusElevation: 0,
                         onPressed: () {
-
-                          menu.setMenuIndex(5, categoryId: index);
-
-
-                          // Navigator.push(
-                          //   context,
-                          //   PageTransition(
-                          //     type: PageTransitionType.fade,
-                          //     child: ProductListPage(mainCategoryId: index),
-                          //   ),
-                          // );
-                          //
-
-
-
+                          menu.setCategoryId(index);
+                          menu.setSubCategoryId(0);
+                          menu.setCurrentPage(5);
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Flexible(
-                              child: Image.network(
-                                  snapshot.data!.categories[index].imageSrc,
-                                  height: 65),
-                            ),
+                            if (snapshot.data!.categories[index].imageSrc == '')
+                              Flexible(
+                                child: Image.asset(
+                                  'assets/images/noimage.jpg',
+                                  height: 65,
+                                ),
+                              )
+                            else
+                              Flexible(
+                                child: Image.network(
+                                    snapshot.data!.categories[index].imageSrc,
+                                    height: 65),
+                              ),
                             SizedBox(height: 5),
                             Flexible(
                               child: Text(
@@ -276,8 +271,7 @@ class _HomePageState extends State<HomePage> {
               const SliverPadding(padding: EdgeInsets.only(bottom: 120))
             ],
           );
-        }
-        else if (snapshot.hasError) {
+        } else if (snapshot.hasError) {
           //return MyErrorWidget(context);
         }
         //return MyLoadingWidget(context);

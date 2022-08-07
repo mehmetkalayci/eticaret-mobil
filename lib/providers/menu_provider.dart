@@ -1,23 +1,38 @@
-
 import 'package:flutter/material.dart';
 
 class MenuProvider with ChangeNotifier {
 
   int _currentPage = 0;
-  int get getCurrentPage => _currentPage;
-
   int _categoryId = 0;
-  int get getCategoryId => _categoryId;
-
+  int _subCategoryId = 0;
   int _productId = 0;
-  int get getProductId => _productId;
 
-  int setMenuIndex(int index, {int productId=0, int categoryId=0}) {
-    _currentPage = index;
-    _productId = productId;
-    _categoryId = categoryId;
+  int get currentPage => _currentPage;
+
+  setCurrentPage(int value) {
+    _currentPage = value;
     notifyListeners();
-    return _currentPage;
+  }
+
+  int get categoryId => _categoryId;
+
+  setCategoryId(int value) {
+    _categoryId = value;
+    notifyListeners();
+  }
+
+  int get SubCategoryId => _subCategoryId;
+
+  setSubCategoryId(int value) {
+    _subCategoryId = value;
+    notifyListeners();
+  }
+
+  int get productId => _productId;
+
+  setProductId(int value) {
+    _productId = value;
+    notifyListeners();
   }
 
 }

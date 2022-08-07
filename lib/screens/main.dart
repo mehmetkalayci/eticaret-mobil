@@ -1,4 +1,5 @@
 import 'package:badges/badges.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/cart.dart';
@@ -48,10 +49,10 @@ class _MainPageState extends State<MainPage> {
         activePage = SignupPage();
         break;
       case 5:
-        activePage = ProductListPage(mainCategoryId: menu.getCategoryId);
+        activePage = ProductListPage(mainCategoryId: menu.categoryId, subCategoryId: menu.SubCategoryId);
         break;
       case 6:
-        activePage = ProductDetailPage(productId: menu.getProductId);
+        activePage = ProductDetailPage(productId: menu.productId);
         break;
       case 7:
         activePage = PaymentPage();
@@ -63,6 +64,9 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     MenuProvider menu = Provider.of<MenuProvider>(context);
+    CartProvider cart = Provider.of<CartProvider>(context);
+
+    cart.loadItems();
 
     return Scaffold(
       drawerEnableOpenDragGesture: false,
@@ -71,7 +75,7 @@ class _MainPageState extends State<MainPage> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            _getPage(context, menu.getCurrentPage),
+            _getPage(context, menu.currentPage),
             KeyboardVisibilityBuilder(
               builder: (context, isKeyboardVisible) {
                 if (!isKeyboardVisible) {
@@ -95,7 +99,7 @@ class _MainPageState extends State<MainPage> {
   Widget _bottomNavigationBar() {
     Size size = MediaQuery.of(context).size;
     MenuProvider menu = Provider.of<MenuProvider>(context);
-    CartProvider cart = Provider.of<CartProvider>(context, listen: true);
+    CartProvider cart = Provider.of<CartProvider>(context);
 
     return Container(
       margin: EdgeInsets.all(20),
@@ -117,7 +121,7 @@ class _MainPageState extends State<MainPage> {
         padding: EdgeInsets.symmetric(horizontal: size.width * .024),
         itemBuilder: (context, index) => InkWell(
           onTap: () {
-            menu.setMenuIndex(index);
+            menu.setCurrentPage(index);
           },
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
@@ -128,12 +132,12 @@ class _MainPageState extends State<MainPage> {
                 duration: Duration(milliseconds: 1500),
                 curve: Curves.fastLinearToSlowEaseIn,
                 margin: EdgeInsets.only(
-                  bottom: index == menu.getCurrentPage ? 0 : size.width * .029,
+                  bottom: index == menu.currentPage ? 0 : size.width * .029,
                   right: size.width * .0422,
                   left: size.width * .0422,
                 ),
                 width: size.width * .128,
-                height: index == menu.getCurrentPage ? size.width * .014 : 0,
+                height: index == menu.currentPage ? size.width * .014 : 0,
                 decoration: BoxDecoration(
                   color: Colors.blueAccent,
                   borderRadius: BorderRadius.vertical(
@@ -144,13 +148,13 @@ class _MainPageState extends State<MainPage> {
               (index == 2)
                   ? Badge(
                       badgeContent: Text(
-                        cart.cartItems.length.toString(),
+                        cart.getTotalItemCount.toString(),
                         style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
                       ),
                       child: Icon(
                         listOfIcons[index],
                         size: size.width * .076,
-                        color: index == menu.getCurrentPage
+                        color: index == menu.currentPage
                             ? Theme.of(context).primaryColor
                             : Colors.black38,
                       ),
@@ -158,7 +162,7 @@ class _MainPageState extends State<MainPage> {
                   : Icon(
                       listOfIcons[index],
                       size: size.width * .076,
-                      color: index == menu.getCurrentPage
+                      color: index == menu.currentPage
                           ? Theme.of(context).primaryColor
                           : Colors.black38,
                     ),

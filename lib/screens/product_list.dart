@@ -5,6 +5,7 @@ import 'package:ecommerce_mobile/main.dart';
 import 'package:ecommerce_mobile/models/category_model.dart';
 import 'package:ecommerce_mobile/models/homepage_model.dart';
 import 'package:ecommerce_mobile/models/product_model.dart';
+import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/product_details.dart';
 import 'package:ecommerce_mobile/widgets/my_appbar.dart';
@@ -18,10 +19,12 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class ProductListPage extends StatefulWidget {
-  const ProductListPage({Key? key, required this.mainCategoryId})
+  const ProductListPage(
+      {Key? key, required this.mainCategoryId, required this.subCategoryId})
       : super(key: key);
 
   final int mainCategoryId;
+  final int subCategoryId;
 
   @override
   State<ProductListPage> createState() => _ProductListPageState();
@@ -103,6 +106,7 @@ class _ProductListPageState extends State<ProductListPage>
   @override
   void initState() {
     mainCategoryIndex = widget.mainCategoryId;
+    subCategoryIndex = widget.subCategoryId;
   }
 
   bool firstLoad = true;
@@ -113,6 +117,7 @@ class _ProductListPageState extends State<ProductListPage>
   @override
   Widget build(BuildContext context) {
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
+    CartProvider cart = Provider.of<CartProvider>(context, listen: false);
 
     return FutureBuilder(
       future: fetchCategories(),
@@ -140,7 +145,6 @@ class _ProductListPageState extends State<ProductListPage>
               subCategoryList.add(CategoryModel.fromJson(subCategory));
             });
 
-
             selectedCategory = subCategoryList[subCategoryIndex];
           } else {
             selectedCategory = mainCategoryList[mainCategoryIndex];
@@ -149,7 +153,7 @@ class _ProductListPageState extends State<ProductListPage>
           if (firstLoad) {
             futureProducts = fetchProducts(selectedCategory.categoryId);
 
-            setCategory();
+            //setCategory();
 
             _tabController =
                 TabController(length: mainCategoryList.length, vsync: this);
@@ -157,6 +161,7 @@ class _ProductListPageState extends State<ProductListPage>
 
             _subCategoryTabController =
                 TabController(length: subCategoryList.length, vsync: this);
+            _subCategoryTabController!.animateTo(subCategoryIndex);
 
             firstLoad = false;
           } else {
@@ -244,6 +249,11 @@ class _ProductListPageState extends State<ProductListPage>
                                 indicatorColor: Colors.white,
                                 onTap: (index) {
                                   subCategoryIndex = index;
+
+                                  menu.setSubCategoryId(subCategoryIndex);
+                                  menu.setCategoryId(mainCategoryIndex);
+                                  menu.setCurrentPage(5);
+
                                   setCategory();
                                   setState(() {});
                                 },
@@ -286,21 +296,21 @@ class _ProductListPageState extends State<ProductListPage>
                                   return MaterialButton(
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
+                                      menu.setProductId(
+                                          snapshot.data![index].productId);
+                                      menu.setCategoryId(menu.categoryId);
+                                      menu.setCurrentPage(6);
 
-                                      // menu.setMenuIndex(6,
-                                      //     productId:
-                                      //         snapshot.data![index].productId);
-
-                                      Navigator.push(
-                                        context,
-                                        PageTransition(
-                                          type: PageTransitionType.fade,
-                                          child: ProductDetailPage(
-                                            productId:
-                                                snapshot.data![index].productId,
-                                          ),
-                                        ),
-                                      );
+                                      // Navigator.push(
+                                      //   context,
+                                      //   PageTransition(
+                                      //     type: PageTransitionType.fade,
+                                      //     child: ProductDetailPage(
+                                      //       productId:
+                                      //           snapshot.data![index].productId,
+                                      //     ),
+                                      //   ),
+                                      // );
                                     },
                                     splashColor: Colors.grey.shade200,
                                     highlightColor: Colors.white,
@@ -320,12 +330,20 @@ class _ProductListPageState extends State<ProductListPage>
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Image.network(
-                                            snapshot.data![index].productImages
-                                                .first.src,
-                                            height: 200,
-                                            width: 200,
-                                          ),
+                                          snapshot.data![index].productImages
+                                                      .length <=
+                                                  0
+                                              ? Image.asset(
+                                                  "assets/images/noimage.jpg",
+                                                  height: 200,
+                                                  width: 200,
+                                                )
+                                              : Image.network(
+                                                  snapshot.data![index]
+                                                      .productImages[0].src,
+                                                  height: 200,
+                                                  width: 200,
+                                                ),
                                           Flexible(
                                             child: Text(
                                               snapshot.data![index].productName,
@@ -357,7 +375,10 @@ class _ProductListPageState extends State<ProductListPage>
                                                 ),
                                                 MaterialButton(
                                                   onPressed: () {
-                                                    // todo: sepete ekle eklenecek
+                                                    cart.insertItem(
+                                                        snapshot.data![index]
+                                                            .productId,
+                                                        1);
                                                   },
                                                   child: Icon(Icons.add_rounded,
                                                       size: 35),
