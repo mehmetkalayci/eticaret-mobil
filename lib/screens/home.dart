@@ -4,11 +4,13 @@ import 'package:advstory/advstory.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_mobile/models/homepage_model.dart';
+import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/product_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -48,6 +50,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
+
     return FutureBuilder(
       future: _homepageModelFuture,
       builder: (BuildContext context, AsyncSnapshot<HomepageModel> snapshot) {
@@ -228,13 +233,21 @@ class _HomePageState extends State<HomePage> {
                         highlightElevation: 0,
                         focusElevation: 0,
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            PageTransition(
-                              type: PageTransitionType.fade,
-                              child: ProductListPage(mainCategoryId: index),
-                            ),
-                          );
+
+                          menu.setMenuIndex(5, categoryId: index);
+
+
+                          // Navigator.push(
+                          //   context,
+                          //   PageTransition(
+                          //     type: PageTransitionType.fade,
+                          //     child: ProductListPage(mainCategoryId: index),
+                          //   ),
+                          // );
+                          //
+
+
+
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -260,10 +273,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              const SliverPadding(padding: EdgeInsets.symmetric(vertical: 30))
+              const SliverPadding(padding: EdgeInsets.only(bottom: 120))
             ],
           );
-        } else if (snapshot.hasError) {
+        }
+        else if (snapshot.hasError) {
           //return MyErrorWidget(context);
         }
         //return MyLoadingWidget(context);

@@ -14,10 +14,10 @@ class BasketItem extends StatelessWidget {
     CartProvider cart = Provider.of<CartProvider>(context, listen: false);
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 20),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200, width: 1.5),
+          bottom: BorderSide(color: Colors.grey.shade200, width: 1.25),
         ),
       ),
       width: double.infinity,
@@ -25,26 +25,31 @@ class BasketItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 100,
-            height: 100,
-            alignment: Alignment.topCenter,
-            child: (cartItem.thumbSrc == null || cartItem.thumbSrc.trim() == '')
-                ? Image.asset('assets/images/noimage.jpg')
-                : Image.network(
-                    cartItem.thumbSrc,
-                    fit: BoxFit.cover,
-                    height: 90,
-                    width: 90,
-                  ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              width: 90,
+              height: 90,
+              alignment: Alignment.topCenter,
+              child:
+                  (cartItem.thumbSrc == null || cartItem.thumbSrc.trim() == '')
+                      ? Image.asset('assets/images/noimage.jpg')
+                      : Image.network(
+                          cartItem.thumbSrc,
+                          fit: BoxFit.cover,
+                        ),
+            ),
           ),
           Flexible(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(width: 10),
                 Flexible(
                     child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       cartItem.productName,
@@ -54,6 +59,8 @@ class BasketItem extends StatelessWidget {
                       ),
                     ),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         IconButton(
                           onPressed: () {
@@ -63,6 +70,7 @@ class BasketItem extends StatelessWidget {
                             Icons.remove_circle_outline_rounded,
                             color: Colors.black87,
                           ),
+                          padding: EdgeInsets.zero,
                           splashRadius: 10,
                         ),
                         Text(cartItem.pcs.toString()),
@@ -83,8 +91,8 @@ class BasketItem extends StatelessWidget {
                 SizedBox(width: 5),
                 Text(
                   cartItem.isDiscounted
-                      ? cartItem.discountedPrice.toString()
-                      : cartItem.sellingPrice.toString(),
+                      ? cartItem.discountedPrice.toString() +" ₺"
+                      : cartItem.sellingPrice.toString() + " ₺",
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

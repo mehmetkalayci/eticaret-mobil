@@ -1,31 +1,48 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
 
 import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+final _storage = SharedPreferences.getInstance();
+
 
 Future<List<CartModel>> getCartItems() async {
+
+  Object? token = await (await _storage).get("accessToken");
+
   final response = await http.get(
     Uri.parse("http://qsres.com/api/mobileapp/cart"),
     headers: {
-      HttpHeaders.contentTypeHeader: "application/json",
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer ${token.toString()}',
     },
   );
+
+  print(response.body);
+
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((item) => new CartModel.fromJson(item)).toList();
   } else {
-    throw Exception("Ürün sepete eklenemedi!");
+    print(response.body);
+    throw Exception("Sepetteki ürünler getirilemedi!");
   }
 }
 
-Future<List<CartModel>> addToCart(int productId, int pcs) async {
+Future<void> addToCart(int productId, int pcs) async {
+  Object? token = await (await _storage).get("accessToken");
+
   final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
-  final headers = {'Content-Type': 'application/json'};
+  final headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer ${token.toString()}',
+  };
   Map<String, dynamic> body = {'productId': productId, 'pcs': pcs};
 
   String jsonBody = json.encode(body);
@@ -38,17 +55,24 @@ Future<List<CartModel>> addToCart(int productId, int pcs) async {
     encoding: encoding,
   );
 
+  print(response.body);
+
   if (response.statusCode == 200) {
-    List jsonResponse = json.decode(response.body);
-    return jsonResponse.map((item) => new CartModel.fromJson(item)).toList();
+    Fluttertoast.showToast(msg: "Ürün sepete eklendi!");
   } else {
     throw Exception("Ürün sepete eklenemedi!");
   }
 }
 
 Future<CartModel> deleteAnItemCompletely(int productId) async {
+  Object? token = await (await _storage).get("accessToken");
+
   final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
-  final headers = {'Content-Type': 'application/json'};
+  final headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer ${token.toString()}',
+  };
   Map<String, dynamic> body = {'productId': productId};
 
   String jsonBody = json.encode(body);
@@ -66,6 +90,7 @@ Future<CartModel> deleteAnItemCompletely(int productId) async {
   } else if (response.statusCode == 404) {
     throw Exception("Ürün zaten sepette yok!");
   } else {
+    print(response.body);
     throw Exception("Ürün sepeten silinemedi!");
   }
 }
@@ -75,16 +100,17 @@ class CartProvider with ChangeNotifier {
 
   bool loading = false;
 
-  loadItems() async {
+  loadItems() {
     loading = true;
-    cartItems = await getCartItems();
-    loading = false;
-    notifyListeners();
+    getCartItems().then((value) {
+      cartItems = value;
+      loading = false;
+      notifyListeners();
+    });
   }
 
   insertItem(int productId) {
     addToCart(productId, 1).then((value) => loadItems());
-    notifyListeners();
   }
 
   double get totalAmount {
@@ -101,11 +127,9 @@ class CartProvider with ChangeNotifier {
 
   void removeItem(int productId) {
     addToCart(productId, -1).then((value) => loadItems());
-    notifyListeners();
   }
 
   void removeItemCompletely(int productId) {
     deleteAnItemCompletely(productId).then((value) => loadItems());
-    notifyListeners();
   }
 }

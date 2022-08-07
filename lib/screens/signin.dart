@@ -1,15 +1,22 @@
+import 'dart:convert';
+
+import 'package:ecommerce_mobile/models/hata_model.dart';
+import 'package:ecommerce_mobile/models/login_response_model.dart';
 import 'package:ecommerce_mobile/models/user_model.dart';
+import 'package:ecommerce_mobile/providers/menu_provider.dart';
+import 'package:ecommerce_mobile/screens/home.dart';
 import 'package:ecommerce_mobile/screens/signup.dart';
 import 'package:ecommerce_mobile/screens/user_profile.dart';
-import 'package:ecommerce_mobile/services/api.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
+import 'package:http/http.dart' as http;
 
 class SigninPage extends StatefulWidget {
   @override
@@ -20,20 +27,46 @@ class _SigninPageState extends State<SigninPage> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController otpController = TextEditingController();
 
+  final _storage = SharedPreferences.getInstance();
+
   final _formKey = GlobalKey<FormState>();
 
   bool _smsRequested = false;
-
-  String _phoneNumber = '';
-  String _verificationId = '';
   bool isLoading = false;
 
-  Future<void> _submitAndVerifyPhoneNumber() async {
+  int tryCounter = 1;
+
+  void _requestSMS() async {
     if (_formKey.currentState!.validate()) {
       if (!_smsRequested) {
-        _phoneNumber = '+90' + phoneController.text.replaceAll('-', '');
+        setState(() {
+          isLoading = true;
+        });
 
-        _verifyPhoneNumber();
+        String phoneNumber = phoneController.text.trim().replaceAll('-', '');
+        otpController.clear();
+
+        final uri =
+            Uri.parse('http://qsres.com/api/authentication/sms-request');
+
+        final response = await http.post(uri,
+            body: json.encode({'phone': phoneNumber}),
+            headers: {"Content-Type": "application/json"},
+            encoding: Encoding.getByName("utf-8"));
+
+        if (response.statusCode == 200) {
+          _smsRequested = true;
+          Fluttertoast.showToast(msg: response.body);
+        } else {
+          HataModel hata = HataModel.fromJson(jsonDecode(response.body));
+          _smsRequested = false;
+          Fluttertoast.showToast(
+              msg: "Doğrulama kodu gönderilirken hata oluştu!\n" + hata.detail);
+        }
+
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -50,123 +83,50 @@ class _SigninPageState extends State<SigninPage> {
     return null;
   }
 
-  void _verifyPhoneNumber() async {
-    if (mounted)
+  _submitAndVerifyPhoneNumber(context) async {
+    if (_formKey.currentState!.validate()) {
+      MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
+
       setState(() {
         isLoading = true;
       });
 
-    final PhoneVerificationFailed verificationFailed =
-        (FirebaseAuthException authException) {
-      Fluttertoast.showToast(msg: authException.message.toString());
-    };
+      String phoneNumber = phoneController.text.trim().replaceAll('-', '');
 
-    final PhoneCodeSent codeSent =
-        (String verificationId, int? forceResendingToken) async {
-      Fluttertoast.showToast(
-          msg: "Telefonunuza SMS ile doğrulama kodunu gönderdik.");
-      setState(() {
-        _verificationId = verificationId;
-        _smsRequested = true;
-      });
-    };
+      final response = await http.post(
+          Uri.parse('http://qsres.com/api/authentication/login'),
+          body: json.encode({
+            'phone': phoneNumber,
+            'smsConfirmationCode': otpController.text.trim()
+          }),
+          headers: {"Content-Type": "application/json"},
+          encoding: Encoding.getByName("utf-8"));
 
-    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
-        (String verificationId) {
-      _verificationId = verificationId;
-    };
+      if (response.statusCode == 200) {
+        LoginResponseModel responseModel =
+            LoginResponseModel.fromJson(json.decode(response.body));
 
-    PhoneVerificationCompleted verificationCompleted =
-        (PhoneAuthCredential phoneAuthCredential) async {
-      print("verificationCompleted");
-    };
+        await (await _storage).setString('accessToken', responseModel.token);
+        menu.setMenuIndex(0);
+      } else {
+        HataModel hata = HataModel.fromJson(jsonDecode(response.body));
+        Fluttertoast.showToast(msg: hata.detail);
+      }
 
-    await _auth
-        .verifyPhoneNumber(
-            phoneNumber: _phoneNumber,
-            timeout: const Duration(seconds: 60),
-            verificationCompleted: verificationCompleted,
-            verificationFailed: verificationFailed,
-            codeSent: codeSent,
-            codeAutoRetrievalTimeout: codeAutoRetrievalTimeout)
-        .then((value) {
-      print("then");
-    }).catchError((onError) {
-      print(onError);
-    });
-
-    if (mounted)
       setState(() {
         isLoading = false;
       });
-  }
-
-  void _signInWithPhoneNumber(String otp) async {
-    _showProgressDialog(true);
-
-    try {
-      final AuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId,
-        smsCode: otp,
-      );
-      final User? user = (await _auth.signInWithCredential(credential)).user;
-      final User? currentUser = _auth.currentUser;
-      assert(user?.uid == currentUser?.uid);
-
-      final prefs = await SharedPreferences.getInstance();
-
-      _showProgressDialog(false);
-      if (user != null) {
-        await prefs.setString('userUid', user.uid);
-        await prefs.setString('userPhone', this._phoneNumber);
-
-        // todo kullanıcıyı db ye kaydet
-
-        print(user);
-
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => UserProfilePage(
-        //         //user: user,
-        //         ),
-        //   ),
-        // );
-      } else {
-        Fluttertoast.showToast(msg: "Oturum açılamadı!");
-      }
-    } on FirebaseAuthException catch (authError) {
-      if (authError.code == 'invalid-verification-code') {
-        Fluttertoast.showToast(
-            msg: "Hatalı doğrulama kodu girdiniz!",
-            toastLength: Toast.LENGTH_LONG);
-      } else {
-        Fluttertoast.showToast(
-            msg: "Hata oluştu :(\n" + authError.message.toString(),
-            toastLength: Toast.LENGTH_LONG);
-      }
-      _showProgressDialog(false);
-    } catch (e) {
-      Fluttertoast.showToast(
-          msg: "Hata oluştu :(\n" + e.toString(),
-          toastLength: Toast.LENGTH_LONG);
-      _showProgressDialog(false);
     }
   }
 
-  _showProgressDialog(bool isloadingstate) {
-    if (mounted)
-      setState(() {
-        isLoading = isloadingstate;
-      });
-  }
 
-  verifyOtp(String otpText) async {
-    _signInWithPhoneNumber(otpText);
-  }
+
+
 
   @override
   Widget build(BuildContext context) {
+    MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -180,6 +140,9 @@ class _SigninPageState extends State<SigninPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : Container(),
                   SizedBox(height: 50),
                   Center(
                     child: Image.asset(
@@ -222,6 +185,7 @@ class _SigninPageState extends State<SigninPage> {
                     visible: _smsRequested,
                     child: TextFormField(
                       style: TextStyle(fontSize: 18),
+                      inputFormatters: [MaskTextInputFormatter(mask: '######')],
                       cursorColor: Colors.black,
                       cursorWidth: 0.75,
                       controller: otpController,
@@ -252,10 +216,10 @@ class _SigninPageState extends State<SigninPage> {
                   SizedBox(height: 15),
                   MaterialButton(
                     onPressed: () {
-                      if (_smsRequested) {
-                        verifyOtp(otpController.text.trim());
+                      if (!_smsRequested) {
+                        _requestSMS();
                       } else {
-                        _submitAndVerifyPhoneNumber();
+                        _submitAndVerifyPhoneNumber(context);
                       }
                     },
                     height: 60,
@@ -266,7 +230,7 @@ class _SigninPageState extends State<SigninPage> {
                     hoverElevation: 0,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -288,12 +252,13 @@ class _SigninPageState extends State<SigninPage> {
                   Center(
                     child: MaterialButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SignupPage(),
-                          ),
-                        );
+                        menu.setMenuIndex(4);
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => SignupPage(),
+                        //   ),
+                        // );
                       },
                       height: 60,
                       focusElevation: 0,
@@ -301,10 +266,10 @@ class _SigninPageState extends State<SigninPage> {
                       hoverElevation: 0,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        "Kaydol",
+                        "Kayıt Ol",
                         style: TextStyle(
                           fontSize: 18,
                         ),

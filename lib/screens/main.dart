@@ -1,9 +1,16 @@
+import 'package:badges/badges.dart';
+import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/cart.dart';
 import 'package:ecommerce_mobile/screens/home.dart';
+import 'package:ecommerce_mobile/screens/payment.dart';
+import 'package:ecommerce_mobile/screens/product_details.dart';
+import 'package:ecommerce_mobile/screens/product_list.dart';
 import 'package:ecommerce_mobile/screens/search.dart';
 import 'package:ecommerce_mobile/screens/signin.dart';
 import 'package:ecommerce_mobile/screens/signup.dart';
+import 'package:ecommerce_mobile/screens/user_auth_check_for_signin.dart';
+import 'package:ecommerce_mobile/screens/user_auth_check_for_cart.dart';
 import 'package:ecommerce_mobile/widgets/my_drawer_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -12,6 +19,7 @@ import 'package:provider/provider.dart';
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
+
   @override
   State<MainPage> createState() => _MainPageState();
 }
@@ -19,8 +27,9 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   //#region Bottom Menü İşlemleri
 
+  Widget _getPage(context, index) {
+    MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
 
-  Widget _getPage(int index) {
     Widget activePage = HomePage();
     switch (index) {
       case 0:
@@ -30,26 +39,31 @@ class _MainPageState extends State<MainPage> {
         activePage = SearchPage();
         break;
       case 2:
-        activePage = CartPage();
+        activePage = UserAuthCheckForCartPage();
         break;
       case 3:
-        activePage = SigninPage();
+        activePage = UserAuthCheckForSigninPage();
         break;
       case 4:
-      activePage = SignupPage();
+        activePage = SignupPage();
+        break;
+      case 5:
+        activePage = ProductListPage(mainCategoryId: menu.getCategoryId);
+        break;
+      case 6:
+        activePage = ProductDetailPage(productId: menu.getProductId);
+        break;
+      case 7:
+        activePage = PaymentPage();
         break;
     }
     return activePage;
   }
 
-  //#endregion
-
-
   @override
   Widget build(BuildContext context) {
+    MenuProvider menu = Provider.of<MenuProvider>(context);
 
-    MenuProvider menuProvider = Provider.of<MenuProvider>(context);
-    
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       drawer: MyDrawerMenu(context),
@@ -57,7 +71,7 @@ class _MainPageState extends State<MainPage> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            _getPage(menuProvider.getCurrentPage),
+            _getPage(context, menu.getCurrentPage),
             KeyboardVisibilityBuilder(
               builder: (context, isKeyboardVisible) {
                 if (!isKeyboardVisible) {
@@ -80,7 +94,8 @@ class _MainPageState extends State<MainPage> {
 
   Widget _bottomNavigationBar() {
     Size size = MediaQuery.of(context).size;
-    MenuProvider menuProvider = Provider.of<MenuProvider>(context);
+    MenuProvider menu = Provider.of<MenuProvider>(context);
+    CartProvider cart = Provider.of<CartProvider>(context, listen: true);
 
     return Container(
       margin: EdgeInsets.all(20),
@@ -102,7 +117,7 @@ class _MainPageState extends State<MainPage> {
         padding: EdgeInsets.symmetric(horizontal: size.width * .024),
         itemBuilder: (context, index) => InkWell(
           onTap: () {
-            menuProvider.setMenuIndex(index);
+            menu.setMenuIndex(index);
           },
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
@@ -113,12 +128,12 @@ class _MainPageState extends State<MainPage> {
                 duration: Duration(milliseconds: 1500),
                 curve: Curves.fastLinearToSlowEaseIn,
                 margin: EdgeInsets.only(
-                  bottom: index == menuProvider.getCurrentPage ? 0 : size.width * .029,
+                  bottom: index == menu.getCurrentPage ? 0 : size.width * .029,
                   right: size.width * .0422,
                   left: size.width * .0422,
                 ),
                 width: size.width * .128,
-                height: index == menuProvider.getCurrentPage ? size.width * .014 : 0,
+                height: index == menu.getCurrentPage ? size.width * .014 : 0,
                 decoration: BoxDecoration(
                   color: Colors.blueAccent,
                   borderRadius: BorderRadius.vertical(
@@ -126,12 +141,27 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
               ),
-              Icon(
-                listOfIcons[index],
-                size: size.width * .076,
-                color:
-                index == menuProvider.getCurrentPage ? Colors.blueAccent : Colors.black38,
-              ),
+              (index == 2)
+                  ? Badge(
+                      badgeContent: Text(
+                        cart.cartItems.length.toString(),
+                        style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                      child: Icon(
+                        listOfIcons[index],
+                        size: size.width * .076,
+                        color: index == menu.getCurrentPage
+                            ? Theme.of(context).primaryColor
+                            : Colors.black38,
+                      ),
+                    )
+                  : Icon(
+                      listOfIcons[index],
+                      size: size.width * .076,
+                      color: index == menu.getCurrentPage
+                          ? Theme.of(context).primaryColor
+                          : Colors.black38,
+                    ),
               SizedBox(height: size.width * .03),
             ],
           ),

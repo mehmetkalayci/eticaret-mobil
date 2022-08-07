@@ -1,16 +1,22 @@
 import 'dart:convert';
 
+import 'package:badges/badges.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:ecommerce_mobile/models/product_model.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
+import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/widgets/my_appbar.dart';
 import 'package:ecommerce_mobile/widgets/my_error_widget.dart';
 import 'package:ecommerce_mobile/widgets/my_loading_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final List<String> imgList = [
   'https://images.unsplash.com/photo-1519311726-5cced7383240?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8Zml0fGVufDB8MnwwfHw%3D&auto=format&fit=crop&w=500&q=60',
@@ -46,6 +52,28 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   late ProductModel productModel;
 
+
+
+  final _storage = SharedPreferences.getInstance();
+
+  Future<bool> isTokenExpired() async {
+    Object? token = await (await _storage).get("accessToken");
+
+    if (token == null || token == "") {
+      // access token yok
+      return false;
+    } else {
+      // token süresi dolmuş mu kontrol et
+      try {
+        bool hasExpired = Jwt.isExpired(token.toString());
+        return !hasExpired;
+      } catch (e) {
+        return false;
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     CartProvider cart = Provider.of<CartProvider>(context);
@@ -57,250 +85,280 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           if (snapshot.data != null) {
             productModel = snapshot.data!;
 
+            bool isAbleToAddToBasket = false;
+
+            isTokenExpired().then((value) => isAbleToAddToBasket = value);
+
             return Scaffold(
-              body: CustomScrollView(
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
-                slivers: <Widget>[
-                  SliverToBoxAdapter(
-                      child: CustomAppBar(context, Icons.shopping_bag_rounded,
-                          snapshot.data!.productName)),
-                  SliverToBoxAdapter(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
+              body: Stack(
+                children: [
+                  CustomScrollView(
+                    shrinkWrap: true,
+                    physics: ScrollPhysics(),
+                    slivers: <Widget>[
+                      SliverToBoxAdapter(
+                          child: CustomAppBar(context, Icons.shopping_bag_rounded,
+                              snapshot.data!.productName)),
+                      SliverToBoxAdapter(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CarouselSlider(
-                              items: snapshot.data?.productImages.map((item) {
-                                return CachedNetworkImage(
-                                  imageUrl: item.src,
-                                  imageBuilder: (context, imageProvider) =>
-                                      Container(
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: imageProvider,
-                                        fit: BoxFit.scaleDown,
+                            Stack(
+                              children: [
+                                CarouselSlider(
+                                  items: snapshot.data?.productImages.map((item) {
+                                    return CachedNetworkImage(
+                                      imageUrl: item.src,
+                                      imageBuilder: (context, imageProvider) =>
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                image: imageProvider,
+                                                fit: BoxFit.scaleDown,
+                                              ),
+                                            ),
+                                          ),
+                                      placeholder: (context, url) => Center(
+                                        child: CircularProgressIndicator(),
                                       ),
+                                      errorWidget: (context, url, error) => Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.error),
+                                            Text("Resim Yüklenemedi!"),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  carouselController: _controller,
+                                  options: CarouselOptions(
+                                      autoPlay: true,
+                                      enlargeCenterPage: true,
+                                      viewportFraction: 1.0,
+                                      height: 300,
+                                      pageSnapping: true,
+                                      onPageChanged: (index, reason) {
+                                        setState(() {
+                                          _current = index;
+                                        });
+                                      }),
+                                ),
+                                Positioned(
+                                  bottom: 10,
+                                  left: 0,
+                                  right: 0,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: snapshot.data!.productImages
+                                        .asMap()
+                                        .entries
+                                        .map((entry) {
+                                      return Container(
+                                        width: _current == entry.key ? 11.0 : 10.0,
+                                        height: _current == entry.key ? 11.0 : 10.0,
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 8.0, horizontal: 4.0),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.grey.withOpacity(
+                                            _current == entry.key ? 0.9 : 0.6,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border(
+                                  bottom: BorderSide(
+                                      width: 1.5, color: Colors.grey.shade200),
+                                ),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    snapshot.data!.productName,
+                                    style: TextStyle(fontSize: 20),
+                                    /*textAlign: TextAlign.center,*/
+                                  ),
+                                  Text(
+                                    snapshot.data!.sellingPrice.toString() + " ₺",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 20,
                                     ),
                                   ),
-                                  placeholder: (context, url) => Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                  errorWidget: (context, url, error) => Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                  SizedBox(height: 15),
+
+                                  Opacity(
+                                    opacity: isAbleToAddToBasket == false ? 0.5 : 1,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.error),
-                                        Text("Resim Yüklenemedi!"),
+                                        Row(
+                                          children: [
+                                            MaterialButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (adet > 1) adet--;
+                                                });
+                                              },
+                                              child: Icon(Icons.remove,
+                                                  color: Colors.black),
+                                              color: Colors.grey.shade300,
+                                              textColor: Colors.white,
+                                              clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(8),
+                                              ),
+                                              height: 40,
+                                              minWidth: 40,
+                                              padding: EdgeInsets.zero,
+                                              elevation: 0,
+                                              disabledElevation: 0,
+                                              hoverElevation: 0,
+                                              highlightElevation: 0,
+                                              focusElevation: 0,
+                                            ),
+                                            SizedBox(
+                                              child: Text(
+                                                this.adet.toString(),
+                                                style: TextStyle(fontSize: 18),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              width: 50,
+                                            ),
+                                            MaterialButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  adet++;
+                                                });
+                                              },
+                                              child: Icon(Icons.add,
+                                                  color: Colors.black),
+                                              color: Colors.grey.shade300,
+                                              textColor: Colors.white,
+                                              clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(8),
+                                              ),
+                                              height: 40,
+                                              minWidth: 40,
+                                              padding: EdgeInsets.zero,
+                                              elevation: 0,
+                                              disabledElevation: 0,
+                                              hoverElevation: 0,
+                                              highlightElevation: 0,
+                                              focusElevation: 0,
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(width: 20),
+                                        Flexible(
+                                          child: MaterialButton(
+                                            onPressed: () {
+                                              cart.insertItem(snapshot.data!.productId);
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.shopping_basket_rounded),
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  "Sepete Ekle",
+                                                  style: TextStyle(fontSize: 18),
+                                                )
+                                              ],
+                                            ),
+                                            color: Colors.lightBlue.shade900,
+                                            textColor: Colors.white,
+                                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            height: 50,
+                                            padding: EdgeInsets.zero,
+                                            elevation: 0,
+                                            disabledElevation: 0,
+                                            hoverElevation: 0,
+                                            highlightElevation: 0,
+                                            focusElevation: 0,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
-                                );
-                              }).toList(),
-                              carouselController: _controller,
-                              options: CarouselOptions(
-                                  autoPlay: true,
-                                  enlargeCenterPage: true,
-                                  viewportFraction: 1.0,
-                                  height: 300,
-                                  pageSnapping: true,
-                                  onPageChanged: (index, reason) {
-                                    setState(() {
-                                      _current = index;
-                                    });
-                                  }),
+                                  SizedBox(height: 15),
+                                ],
+                              ),
                             ),
-                            Positioned(
-                              bottom: 10,
-                              left: 0,
-                              right: 0,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: snapshot.data!.productImages
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  return Container(
-                                    width: _current == entry.key ? 11.0 : 10.0,
-                                    height: _current == entry.key ? 11.0 : 10.0,
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 8.0, horizontal: 4.0),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white.withOpacity(
-                                        _current == entry.key ? 0.9 : 0.6,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            )
-                          ],
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border(
-                              bottom: BorderSide(
-                                  width: 1.5, color: Colors.grey.shade200),
-                            ),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                snapshot.data!.productName,
-                                style: TextStyle(fontSize: 20),
-                                /*textAlign: TextAlign.center,*/
-                              ),
-                              Text(
-                                snapshot.data!.sellingPrice.toString() + " ₺",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              SizedBox(height: 15),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
+                            Container(
+                              width: double.infinity,
+                              height: 400,
+                              color: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      MaterialButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            if (adet > 1) adet--;
-                                          });
-                                        },
-                                        child: Icon(Icons.remove,
-                                            color: Colors.black),
-                                        color: Colors.grey.shade300,
-                                        textColor: Colors.white,
-                                        clipBehavior:
-                                            Clip.antiAliasWithSaveLayer,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        height: 40,
-                                        minWidth: 40,
-                                        padding: EdgeInsets.zero,
-                                        elevation: 0,
-                                        disabledElevation: 0,
-                                        hoverElevation: 0,
-                                        highlightElevation: 0,
-                                        focusElevation: 0,
-                                      ),
-                                      SizedBox(
-                                        child: Text(
-                                          this.adet.toString(),
-                                          style: TextStyle(fontSize: 18),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        width: 50,
-                                      ),
-                                      MaterialButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            adet++;
-                                          });
-                                        },
-                                        child: Icon(Icons.add,
-                                            color: Colors.black),
-                                        color: Colors.grey.shade300,
-                                        textColor: Colors.white,
-                                        clipBehavior:
-                                            Clip.antiAliasWithSaveLayer,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        height: 40,
-                                        minWidth: 40,
-                                        padding: EdgeInsets.zero,
-                                        elevation: 0,
-                                        disabledElevation: 0,
-                                        hoverElevation: 0,
-                                        highlightElevation: 0,
-                                        focusElevation: 0,
-                                      ),
-                                    ],
+                                  SizedBox(height: 15),
+                                  Text(
+                                    'ÜRÜN AÇIKLAMASI',
+                                    style: TextStyle(
+                                        fontSize: 20, fontWeight: FontWeight.bold),
+                                    /*textAlign: TextAlign.center,*/
                                   ),
-                                  SizedBox(width: 20),
-                                  Flexible(
-                                    child: MaterialButton(
-                                      onPressed: () {
-                                        cart.insertItem(snapshot.data!.productId);
-                                      },
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.shopping_basket_rounded),
-                                          SizedBox(width: 10),
-                                          Text(
-                                            "Sepete Ekle",
-                                            style: TextStyle(fontSize: 18),
-                                          )
-                                        ],
-                                      ),
-                                      color: Colors.lightBlue.shade900,
-                                      textColor: Colors.white,
-                                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      height: 50,
-                                      padding: EdgeInsets.zero,
-                                      elevation: 0,
-                                      disabledElevation: 0,
-                                      hoverElevation: 0,
-                                      highlightElevation: 0,
-                                      focusElevation: 0,
-                                    ),
+                                  Text(
+                                    snapshot.data!.details,
+                                    style: TextStyle(fontSize: 20),
+                                    /*textAlign: TextAlign.center,*/
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 15),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          width: double.infinity,
-                          height: 400,
-                          color: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 15),
-                              Text(
-                                'ÜRÜN AÇIKLAMASI',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                                /*textAlign: TextAlign.center,*/
-                              ),
-                              Text(
-                                snapshot.data!.details,
-                                style: TextStyle(fontSize: 20),
-                                /*textAlign: TextAlign.center,*/
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+
+
+                    ],
+                  ),
+
+                  KeyboardVisibilityBuilder(
+                    builder: (context, isKeyboardVisible) {
+                      if (!isKeyboardVisible) {
+                        return Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: _bottomNavigationBar(),
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
                   ),
                 ],
-              ),
+              )
+
             );
           } else {
             return Text("Ürün bulunamadı!");
@@ -312,4 +370,89 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       },
     );
   }
+
+
+  Widget _bottomNavigationBar() {
+    Size size = MediaQuery.of(context).size;
+    CartProvider cart = Provider.of<CartProvider>(context, listen: true);
+
+    return Container(
+      margin: EdgeInsets.all(20),
+      height: size.width * .155,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.15),
+            blurRadius: 30,
+            offset: Offset(0, 10),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(50),
+      ),
+      child: ListView.builder(
+        itemCount: 4,
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: size.width * .024),
+        itemBuilder: (context, index) => InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AnimatedContainer(
+                duration: Duration(milliseconds: 1500),
+                curve: Curves.fastLinearToSlowEaseIn,
+                margin: EdgeInsets.only(
+                  bottom: index == 2 ? 0 : size.width * .029,
+                  right: size.width * .0422,
+                  left: size.width * .0422,
+                ),
+                width: size.width * .128,
+                height: index == 2 ? size.width * .014 : 0,
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(10),
+                  ),
+                ),
+              ),
+              (index == 2)
+                  ? Badge(
+                badgeContent: Text(
+                  cart.cartItems.length.toString(),
+                  style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+                child: Icon(
+                  listOfIcons[index],
+                  size: size.width * .076,
+                  color: index == 3
+                      ? Theme.of(context).primaryColor
+                      : Colors.black38,
+                ),
+              )
+                  : Icon(
+                listOfIcons[index],
+                size: size.width * .076,
+                color: index == 2
+                    ? Theme.of(context).primaryColor
+                    : Colors.black38,
+              ),
+              SizedBox(height: size.width * .03),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
+
+List<IconData> listOfIcons = [
+  Icons.home_rounded,
+  Icons.search_rounded,
+  Icons.shopping_basket_rounded,
+  Icons.person_rounded
+];

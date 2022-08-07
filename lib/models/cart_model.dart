@@ -7,6 +7,7 @@ class CartModel {
     required this.sellingPrice,
     required this.discountedPrice,
     required this.pcs,
+    required this.id,
     required this.isDiscounted,
     required this.thumbSrc,
   });
@@ -16,6 +17,7 @@ class CartModel {
   double sellingPrice;
   double discountedPrice;
   int pcs;
+  int id;
   bool isDiscounted;
   String thumbSrc;
 
@@ -29,6 +31,7 @@ class CartModel {
     sellingPrice: json["sellingPrice"],
     discountedPrice: json["discountedPrice"],
     pcs: json["pcs"],
+    id: json["id"],
     isDiscounted: json["isDiscounted"],
     thumbSrc: json["thumbSrc"] ?? "",
   );
@@ -39,6 +42,7 @@ class CartModel {
     "sellingPrice": sellingPrice,
     "discountedPrice": discountedPrice,
     "pcs": pcs,
+    "id": id,
     "isDiscounted": isDiscounted,
     "thumbSrc": thumbSrc,
   };

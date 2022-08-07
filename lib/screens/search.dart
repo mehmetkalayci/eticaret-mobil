@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ecommerce_mobile/models/search_result_model.dart';
+import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/product_details.dart';
 import 'package:ecommerce_mobile/widgets/my_error_widget.dart';
 import 'package:ecommerce_mobile/widgets/my_loading_widget.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -26,8 +28,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<List<SearchResultModel>> fetchSearchResult(String query) async {
     if (query.trim() != "") {
-      final response = await http
-          .get(Uri.parse('http://qsres.com/api/mobileapp/search?q=$query'));
+      final response = await http.get(Uri.parse('http://qsres.com/api/mobileapp/search?q=$query'));
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response, then parse the JSON.
         List jsonResponse = json.decode(response.body);
@@ -45,6 +46,9 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
+
     return FutureBuilder(
         future: fetchSearchResult(query),
         builder: (BuildContext context, AsyncSnapshot<List<SearchResultModel>> snapshot) {
@@ -105,13 +109,17 @@ class _SearchPageState extends State<SearchPage> {
 
                                   return ListTile(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        PageTransition(
-                                          type: PageTransitionType.fade,
-                                          child: ProductDetailPage(productId: element.productId),
-                                        ),
-                                      );
+
+                                      menu.setMenuIndex(6, productId: element.productId);
+
+
+                                      // Navigator.push(
+                                      //   context,
+                                      //   PageTransition(
+                                      //     type: PageTransitionType.fade,
+                                      //     child: ProductDetailPage(productId: element.productId),
+                                      //   ),
+                                      // );
                                     },
                                     title: Text(element.productName),
                                     subtitle: Text(element.name),
@@ -130,6 +138,7 @@ class _SearchPageState extends State<SearchPage> {
                                   )
                                 ]),
                 ),
+                SliverPadding(padding: EdgeInsets.only(bottom: 120))
               ],
             );
           } else if (snapshot.hasError) {

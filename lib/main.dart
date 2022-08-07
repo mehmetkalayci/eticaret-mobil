@@ -5,16 +5,20 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/category_data_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
+import 'package:ecommerce_mobile/screens/home.dart';
 import 'package:ecommerce_mobile/screens/main.dart';
-import 'package:ecommerce_mobile/screens/XPage.dart';
 import 'package:ecommerce_mobile/screens/noconn.dart';
-import 'package:ecommerce_mobile/screens/yy.dart';
+import 'package:ecommerce_mobile/screens/signin.dart';
+import 'package:ecommerce_mobile/screens/user_profile.dart';
+import 'package:ecommerce_mobile/screens/user_promotions.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 
@@ -137,6 +141,7 @@ class _MyAppState extends State<MyApp> {
 
   MaterialColor colorCustom = MaterialColor(0xFF015791, color);
 
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -152,26 +157,27 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
       child: MaterialApp(
-          title: 'Malzemecim',
-          theme: ThemeData(
-            useMaterial3: true,
-            fontFamily: 'Poppins',
-            primaryColor: Color.fromARGB(255, 1, 87, 145),
-            secondaryHeaderColor: Color.fromARGB(255, 1, 87, 145),
-            primarySwatch: colorCustom,
-            bottomAppBarColor: colorCustom,
-            scaffoldBackgroundColor: Colors.white,
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-            textTheme: const TextTheme(
-              bodyText2: TextStyle(fontSize: 16.0, fontFamily: 'Poppins'),
-              button: TextStyle(fontSize: 13.0, fontFamily: 'Poppins'),
-            ),
+        title: 'Malzemecim',
+        theme: ThemeData(
+          useMaterial3: true,
+          fontFamily: 'Poppins',
+          primaryColor: Color.fromARGB(255, 1, 87, 145),
+          secondaryHeaderColor: Color.fromARGB(255, 1, 87, 145),
+          primarySwatch: colorCustom,
+          bottomAppBarColor: colorCustom,
+          scaffoldBackgroundColor: Colors.white,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          textTheme: const TextTheme(
+            bodyText2: TextStyle(fontSize: 16.0, fontFamily: 'Poppins'),
+            button: TextStyle(fontSize: 13.0, fontFamily: 'Poppins'),
           ),
-          debugShowCheckedModeBanner: false,
-          debugShowMaterialGrid: false,
-          home: (_connectionStatus == ConnectivityResult.none)
-              ? NoConnPage()
-              : MainPage()),
+        ),
+        debugShowCheckedModeBanner: false,
+        debugShowMaterialGrid: false,
+        home:  (_connectionStatus == ConnectivityResult.none)
+          ? NoConnPage()
+          : MainPage(),
+      ),
     );
   }
 }

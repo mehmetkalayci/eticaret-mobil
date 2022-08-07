@@ -233,7 +233,7 @@ class _UserProfileEditPageState extends State<UserProfileEditPage> {
                         hoverElevation: 0,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -261,7 +261,7 @@ class _UserProfileEditPageState extends State<UserProfileEditPage> {
                           hoverElevation: 0,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             "Geri",

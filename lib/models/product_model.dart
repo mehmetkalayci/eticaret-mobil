@@ -155,7 +155,7 @@ class ProductImage {
         imageId: json["imageId"],
         productId: json["productId"],
         src: json["src"],
-        thumbSrc: json["thumbSrc"],
+        thumbSrc: json["thumbSrc"] ?? "",
         details: json["details"],
         product: json["product"],
       );

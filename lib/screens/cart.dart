@@ -1,8 +1,11 @@
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
+import 'package:ecommerce_mobile/providers/menu_provider.dart';
+import 'package:ecommerce_mobile/screens/payment.dart';
 import 'package:ecommerce_mobile/widgets/basket_item.dart';
 import 'package:ecommerce_mobile/widgets/my_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 class CartPage extends StatefulWidget {
@@ -15,7 +18,9 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
-    CartProvider cart = Provider.of<CartProvider>(context, listen: false);
+
+    MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
+    CartProvider cart = Provider.of<CartProvider>(context, listen: true);
     cart.loadItems();
 
     if (!cart.loading) {
@@ -23,6 +28,9 @@ class _CartPageState extends State<CartPage> {
     } else {
       return Stack(children: [
         CustomScrollView(slivers: [
+          SliverToBoxAdapter(child: CustomAppBar(context, Icons.shopping_basket_rounded, "Sepet")),
+
+
           SliverAnimatedList(
             initialItemCount: cart.cartItems.length,
             itemBuilder: (context, index, animation) => SizeTransition(
@@ -49,25 +57,42 @@ class _CartPageState extends State<CartPage> {
               ),
             ),
           ),
-          SliverPadding(padding: EdgeInsets.all(20)),
+
+          SliverPadding(padding: EdgeInsets.only(bottom: 190)),
+
         ]),
         Positioned(
-          bottom: 100,
+          bottom: 0,
           left: 0,
           right: 0,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
             color: Theme.of(context).primaryColor,
+            height: 170,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Expanded(
                   flex: 2,
                   child: MaterialButton(
-                    onPressed: () {},
+                    onPressed: () {
+
+                      menu.setMenuIndex(7);
+
+                      // Navigator.push(
+                      //   context,
+                      //   PageTransition(
+                      //     type: PageTransitionType.fade,
+                      //     child: PaymentPage(),
+                      //   ),
+                      // );
+
+
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.shopping_bag_rounded),
+                        Icon(Icons.playlist_add_check_rounded),
                         SizedBox(width: 10),
                         Text(
                           "Sepeti Onayla",
