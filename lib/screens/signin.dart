@@ -18,6 +18,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+import '../providers/auth_provider.dart';
+
 class SigninPage extends StatefulWidget {
   @override
   _SigninPageState createState() => _SigninPageState();
@@ -108,6 +110,10 @@ class _SigninPageState extends State<SigninPage> {
 
         await (await _storage).setString('accessToken', responseModel.token);
         menu.setCurrentPage(0);
+        /*LOGİN OLDU*/
+        AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
+        auth.IsLoggedIn();
+
       } else {
         HataModel hata = HataModel.fromJson(jsonDecode(response.body));
         Fluttertoast.showToast(msg: hata.detail);

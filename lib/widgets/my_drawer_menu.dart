@@ -2,17 +2,20 @@ import 'package:badges/badges.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
-import 'package:ecommerce_mobile/screens/signin.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+bool firstLoad=true;
 Widget MyDrawerMenu(BuildContext context) {
     MenuProvider menu = Provider.of<MenuProvider>(context);
     CartProvider cart = Provider.of<CartProvider>(context);
     AuthProvider auth = Provider.of<AuthProvider>(context);
+    /*İLK KEZ ÇALIŞACAKSA*/
 
+    if(firstLoad){
+      auth.IsLoggedIn();
+      firstLoad=false;
+    }
     return Drawer(
       child: Column(children: [
         DrawerHeader(
@@ -80,6 +83,7 @@ Widget MyDrawerMenu(BuildContext context) {
       //   title: const Text('Bana Özel'),
       //   onTap: () {},
       // ),
+
       Divider(height: 0),
       if (!auth.getIsLoggedIn)
         ListTile(
@@ -92,15 +96,16 @@ Widget MyDrawerMenu(BuildContext context) {
           },
         ),
       Divider(height: 0),
-      ListTile(
-        minLeadingWidth: 20,
-        leading: Icon(Icons.discount_rounded),
-        title: const Text('Giriş Yap'),
-        onTap: () {
-          menu.setCurrentPage(3);
-          Navigator.of(context).pop();
-        },
-      ),
+      if (!auth.getIsLoggedIn)
+        ListTile(
+          minLeadingWidth: 20,
+          leading: Icon(Icons.discount_rounded),
+          title: const Text('Giriş Yap'),
+          onTap: () {
+            menu.setCurrentPage(3);
+            Navigator.of(context).pop();
+          },
+        ),
       Divider(height: 0),
       Spacer(),
       Divider(height: 0),

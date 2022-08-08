@@ -14,7 +14,6 @@ class BasketItem extends StatefulWidget {
 }
 
 class _BasketItemState extends State<BasketItem> {
-
   // DateTime loginClickTime;
   //
   // bool isRedundentClick(DateTime currentTime){
@@ -35,6 +34,7 @@ class _BasketItemState extends State<BasketItem> {
   @override
   Widget build(BuildContext context) {
     CartProvider cart = Provider.of<CartProvider>(context, listen: false);
+    bool selectionIsActive = false;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -54,13 +54,13 @@ class _BasketItemState extends State<BasketItem> {
               width: 90,
               height: 90,
               alignment: Alignment.topCenter,
-              child:
-                  (widget.cartItem.thumbSrc == null || widget.cartItem.thumbSrc.trim() == '')
-                      ? Image.asset('assets/images/noimage.jpg')
-                      : Image.network(
-                          widget.cartItem.thumbSrc,
-                          fit: BoxFit.cover,
-                        ),
+              child: (widget.cartItem.thumbSrc == null ||
+                      widget.cartItem.thumbSrc.trim() == '')
+                  ? Image.asset('assets/images/noimage.jpg')
+                  : Image.network(
+                      widget.cartItem.thumbSrc,
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
           Flexible(
@@ -87,15 +87,7 @@ class _BasketItemState extends State<BasketItem> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            Future.delayed(const Duration(milliseconds: 2000), () {
-                              Fluttertoast.showToast(msg: "az bekle ");
-                              setState(() {
-                                cart.removeItem(widget.cartItem.productId);
-                                // Here you can write your code for open new view
-                              });
-
-                            });
-
+                            cart.removeItem(widget.cartItem.productId);
                           },
                           icon: Icon(
                             Icons.remove_circle_outline_rounded,
@@ -104,18 +96,10 @@ class _BasketItemState extends State<BasketItem> {
                           padding: EdgeInsets.zero,
                           splashRadius: 10,
                         ),
-                        Text(widget.cartItem.pcs.toString()),
+                        Text(cart.getProductPcs[widget.cartItem.productId].toString()),
                         IconButton(
                           onPressed: () {
-                            Future.delayed(const Duration(milliseconds: 2000), () {
-                              Fluttertoast.showToast(msg: "az bekle ");
-                              setState(() {
-                                cart.insertItem(widget.cartItem.productId, 1);
-                                // Here you can write your code for open new view
-                              });
-
-                            });
-
+                            cart.insertItem(widget.cartItem.productId, 1);
                           },
                           icon: Icon(
                             Icons.add_circle_outline_rounded,
@@ -130,7 +114,7 @@ class _BasketItemState extends State<BasketItem> {
                 SizedBox(width: 5),
                 Text(
                   widget.cartItem.isDiscounted
-                      ? widget.cartItem.discountedPrice.toString() +" ₺"
+                      ? widget.cartItem.discountedPrice.toString() + " ₺"
                       : widget.cartItem.sellingPrice.toString() + " ₺",
                   style: const TextStyle(
                     fontSize: 16,

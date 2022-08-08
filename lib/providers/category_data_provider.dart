@@ -28,6 +28,6 @@ class CategoryDataProvider with ChangeNotifier {
     categories = await getCategories(context);
     loading = false;
 
-    notifyListeners();
+    //notifyListeners();
   }
 }

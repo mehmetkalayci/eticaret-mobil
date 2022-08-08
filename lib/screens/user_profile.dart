@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ecommerce_mobile/models/profile_model.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,13 +41,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
 
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
-
+    AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
 
     return Scaffold(
       body: FutureBuilder(
         future: getProfile(),
         builder: (BuildContext context, AsyncSnapshot<ProfileModel?> snapshot) {
-          print(snapshot);
           if (snapshot.hasData) {
             if(snapshot.data == null){
               return Center(child: Text("Profil bilgisi getirilemedi!"));
@@ -90,6 +90,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       onPressed: () async {
                         await (await _storage).remove("accessToken");
                         menu.setCurrentPage(0);
+                        auth.IsLoggedIn();
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

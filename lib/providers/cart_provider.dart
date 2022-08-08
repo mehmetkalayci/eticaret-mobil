@@ -51,7 +51,7 @@ Future<void> addToCart(int productId, int pcs) async {
   );
 
   if (response.statusCode == 200) {
-    Fluttertoast.showToast(msg: "Ürün sepete eklendi!");
+    //Fluttertoast.showToast(msg: "Ürün sepete eklendi!");
   } else if (response.statusCode == 401) {
     Fluttertoast.showToast(msg: "Sepeti kullanmak için oturum açın!");
   } else {
@@ -91,39 +91,44 @@ Future<void> deleteAnItemCompletely(int productId) async {
 class CartProvider with ChangeNotifier {
   List<CartModel> cartItems = [];
 
-
   loadItems() async {
-     await getCartItems().then((value) {
-       if(value != null) {
-         cartItems.clear();
-         value.forEach((element) {
-           cartItems.add(element);
-         });
-       }
+    await getCartItems().then((value) {
+      if (value != null) {
+        cartItems.clear();
+        var total= 0.0;
+        var pcs=0;
+        _getProductPcs.clear();
+        value.forEach((element) {
+          cartItems.add(element);
+          if (element.isDiscounted) {
+            total += element.discountedPrice * element.pcs;
+          } else {
+            total += element.sellingPrice * element.pcs;
+          }
+          if(_getProductPcs[element.productId]==null){
+            _getProductPcs[element.productId]=0;
+          }
+          _getProductPcs.update(element.productId, (value) => value + element.pcs);
+          pcs += element.pcs;
+        });
+        _getTotalItemCount=pcs;
+        _totalAmount=total;
+        notifyListeners();
+      }
     });
   }
 
   insertItem(int productId, int adet) {
     addToCart(productId, 1).then((value) => loadItems());
   }
+  double _totalAmount=0.0;
+  double get totalAmount =>_totalAmount;
 
-  double get totalAmount {
-    var total = 0.0;
-    cartItems.forEach((cartItem) {
-      if (cartItem.isDiscounted) {
-        total += cartItem.discountedPrice * cartItem.pcs;
-      } else {
-        total += cartItem.sellingPrice * cartItem.pcs;
-      }
-    });
-    return total;
-  }
+  Map<int,int> _getProductPcs={0:0};
+  Map<int,int> get getProductPcs =>_getProductPcs;
 
-  int get getTotalItemCount {
-    int total = 0;
-    cartItems.forEach((cartItem) => total += cartItem.pcs);
-    return total;
-  }
+  int _getTotalItemCount=0;
+  int get getTotalItemCount =>_getTotalItemCount;
 
   void removeItem(int productId) {
     addToCart(productId, -1).then((value) => loadItems());
