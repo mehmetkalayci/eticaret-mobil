@@ -23,40 +23,10 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
 
-  final _storage = SharedPreferences.getInstance();
-
-
-  Future<List<CartModel>?> getCartItems() async {
-    Object? token = await (await _storage).get("accessToken");
-
-    final response = await http.get(
-      Uri.parse("http://qsres.com/api/mobileapp/cart"),
-      headers: {
-        'Content-type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer ${token.toString()}',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body);
-      return jsonResponse.map((item) => new CartModel.fromJson(item)).toList();
-    } else {
-      return null;
-    }
-  }
-
-  late Future<List<CartModel>?> _futureCartItems;
-
-  @override
-  void initState() {
-    _futureCartItems = getCartItems();
-  }
-
   @override
   Widget build(BuildContext context) {
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
-    CartProvider cart = Provider.of<CartProvider>(context, listen: false);
+    CartProvider cart = Provider.of<CartProvider>(context, listen: true);
 
 
     return Stack(children: [
@@ -67,49 +37,34 @@ class _CartPageState extends State<CartPage> {
         ),
 
 
-        FutureBuilder(
-          future: getCartItems(),
-          builder: (BuildContext context, AsyncSnapshot<List<CartModel>?> snapshot) {
-            if(snapshot.hasData) {
-
-              cart.cartItems.clear();
-              snapshot.data!.forEach((element) {
-                cart.cartItems.add(element);
-              });
-
-              return SliverAnimatedList(
-                initialItemCount: snapshot.data!.length,
-                itemBuilder: (context, index, animation) => SizeTransition(
-                  sizeFactor: animation,
-                  child: Slidable(
-                    endActionPane: ActionPane(
-                      extentRatio: 0.25,
-                      motion: ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          flex: 1,
-                          onPressed: (context) {
-                            cart.removeItemCompletely(
-                              snapshot.data![index].productId,
-                            );
-                          },
-                          backgroundColor: Color(0xFFFE4A49),
-                          foregroundColor: Colors.white,
-                          icon: Icons.delete_sweep_rounded,
-                        ),
-                      ],
-                    ),
-                    child: BasketItem(cartItem: snapshot.data![index]),
+        SliverAnimatedList(
+          initialItemCount: cart.cartItems.length,
+          itemBuilder: (context, index, animation) => SizeTransition(
+            sizeFactor: animation,
+            child: Slidable(
+              endActionPane: ActionPane(
+                extentRatio: 0.25,
+                motion: ScrollMotion(),
+                children: [
+                  SlidableAction(
+                    flex: 1,
+                    onPressed: (context) {
+                      cart.removeItemCompletely(
+                        cart.cartItems[index].productId,
+                      );
+                    },
+                    backgroundColor: Color(0xFFFE4A49),
+                    foregroundColor: Colors.white,
+                    icon: Icons.delete_sweep_rounded,
                   ),
-                ),
-              );
-            } else if(snapshot.hasError) {
-              return SliverToBoxAdapter(child: Text(snapshot.error.toString()));
-            }else {
-              return SliverToBoxAdapter(child: CircularProgressIndicator());
-            }
-          },
+                ],
+              ),
+              child: BasketItem(cartItem: cart.cartItems[index]),
+            ),
+          ),
         ),
+
+
         SliverPadding(padding: EdgeInsets.only(bottom: 190)),
       ]),
 

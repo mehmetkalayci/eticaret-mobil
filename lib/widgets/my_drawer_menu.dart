@@ -7,15 +7,13 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 bool firstLoad=true;
 Widget MyDrawerMenu(BuildContext context) {
-    MenuProvider menu = Provider.of<MenuProvider>(context);
-    CartProvider cart = Provider.of<CartProvider>(context);
-    AuthProvider auth = Provider.of<AuthProvider>(context);
+    MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
+    CartProvider cart = Provider.of<CartProvider>(context, listen: false);
+    AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
     /*İLK KEZ ÇALIŞACAKSA*/
 
-    if(firstLoad){
-      auth.IsLoggedIn();
-      firstLoad=false;
-    }
+
+
     return Drawer(
       child: Column(children: [
         DrawerHeader(
@@ -85,7 +83,7 @@ Widget MyDrawerMenu(BuildContext context) {
       // ),
 
       Divider(height: 0),
-      if (!auth.getIsLoggedIn)
+      if (!auth.isLoggedIn)
         ListTile(
           minLeadingWidth: 20,
           leading: Icon(Icons.login),
@@ -96,7 +94,7 @@ Widget MyDrawerMenu(BuildContext context) {
           },
         ),
       Divider(height: 0),
-      if (!auth.getIsLoggedIn)
+      if (!auth.isLoggedIn)
         ListTile(
           minLeadingWidth: 20,
           leading: Icon(Icons.discount_rounded),

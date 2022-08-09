@@ -25,7 +25,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
       Uri.parse("http://qsres.com/api/authentication/me"),
       headers: {
         'Content-type': 'application/json',
-        'Accept': 'application/json',
         'Authorization': 'Bearer ${token.toString()}',
       },
     );
@@ -88,9 +87,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     SizedBox(height: 5),
                     MaterialButton(
                       onPressed: () async {
-                        await (await _storage).remove("accessToken");
                         menu.setCurrentPage(0);
-                        auth.IsLoggedIn();
+                        auth.Logout();
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

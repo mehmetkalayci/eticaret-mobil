@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
-import 'package:ecommerce_mobile/providers/category_data_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/home.dart';
 import 'package:ecommerce_mobile/screens/main.dart';
@@ -148,17 +147,14 @@ class _MyAppState extends State<MyApp> {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
+        ),
         ChangeNotifierProvider<MenuProvider>(
           create: (context) => MenuProvider(),
         ),
-        ChangeNotifierProvider<CategoryDataProvider>(
-          create: (_) => CategoryDataProvider(),
-        ),
         ChangeNotifierProvider<CartProvider>(
           create: (_) => CartProvider(),
-        ),
-        ChangeNotifierProvider<AuthProvider>(
-          create: (_) => AuthProvider(),
         ),
       ],
       child: MaterialApp(

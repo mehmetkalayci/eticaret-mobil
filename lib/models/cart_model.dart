@@ -19,7 +19,7 @@ class CartModel {
   int pcs;
   int id;
   bool isDiscounted;
-  String thumbSrc;
+  String? thumbSrc;
 
   factory CartModel.fromRawJson(String str) => CartModel.fromJson(json.decode(str));
 

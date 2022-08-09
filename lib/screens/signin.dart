@@ -2,18 +2,11 @@ import 'dart:convert';
 
 import 'package:ecommerce_mobile/models/hata_model.dart';
 import 'package:ecommerce_mobile/models/login_response_model.dart';
-import 'package:ecommerce_mobile/models/user_model.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
-import 'package:ecommerce_mobile/screens/home.dart';
-import 'package:ecommerce_mobile/screens/signup.dart';
-import 'package:ecommerce_mobile/screens/user_profile.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:jwt_decode/jwt_decode.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -26,10 +19,10 @@ class SigninPage extends StatefulWidget {
 }
 
 class _SigninPageState extends State<SigninPage> {
+  final _storage = SharedPreferences.getInstance();
+
   TextEditingController phoneController = TextEditingController();
   TextEditingController otpController = TextEditingController();
-
-  final _storage = SharedPreferences.getInstance();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -95,29 +88,15 @@ class _SigninPageState extends State<SigninPage> {
 
       String phoneNumber = phoneController.text.trim().replaceAll('-', '');
 
-      final response = await http.post(
-          Uri.parse('http://qsres.com/api/authentication/login'),
-          body: json.encode({
-            'phone': phoneNumber,
-            'smsConfirmationCode': otpController.text.trim()
-          }),
-          headers: {"Content-Type": "application/json"},
-          encoding: Encoding.getByName("utf-8"));
+      AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
 
-      if (response.statusCode == 200) {
-        LoginResponseModel responseModel =
-            LoginResponseModel.fromJson(json.decode(response.body));
+      auth.Login(phoneNumber, otpController.text.trim());
 
-        await (await _storage).setString('accessToken', responseModel.token);
+      if(auth.isLoggedIn) {
         menu.setCurrentPage(0);
-        /*LOGİN OLDU*/
-        AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
-        auth.IsLoggedIn();
-
-      } else {
-        HataModel hata = HataModel.fromJson(jsonDecode(response.body));
-        Fluttertoast.showToast(msg: hata.detail);
       }
+
+
 
       setState(() {
         isLoading = false;

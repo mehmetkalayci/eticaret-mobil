@@ -26,6 +26,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+
   //#region Bottom Menü İşlemleri
 
   Widget _getPage(context, index) {
@@ -61,12 +62,18 @@ class _MainPageState extends State<MainPage> {
     return activePage;
   }
 
+  //#endregion
+
   @override
   Widget build(BuildContext context) {
-    MenuProvider menu = Provider.of<MenuProvider>(context);
-    CartProvider cart = Provider.of<CartProvider>(context);
+    MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
 
-    cart.loadItems();
+    // başlangıçta geçerli kullanıcı tokenini var mı, varsa yükle,
+    // provider ile diğer formlarla bu bilgiyi paylaş
+    Provider.of<AuthProvider>(context, listen: false);
+    // başlangıçta kullanıcının sepetini yükle
+    Provider.of<CartProvider>(context, listen: false).loadItems();
+
 
     return Scaffold(
       drawerEnableOpenDragGesture: false,

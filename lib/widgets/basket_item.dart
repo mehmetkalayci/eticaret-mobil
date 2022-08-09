@@ -55,10 +55,10 @@ class _BasketItemState extends State<BasketItem> {
               height: 90,
               alignment: Alignment.topCenter,
               child: (widget.cartItem.thumbSrc == null ||
-                      widget.cartItem.thumbSrc.trim() == '')
+                      widget.cartItem.thumbSrc.toString().trim() == '')
                   ? Image.asset('assets/images/noimage.jpg')
                   : Image.network(
-                      widget.cartItem.thumbSrc,
+                      widget.cartItem.thumbSrc.toString(),
                       fit: BoxFit.cover,
                     ),
             ),

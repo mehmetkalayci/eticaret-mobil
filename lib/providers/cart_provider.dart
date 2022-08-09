@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,6 @@ Future<List<CartModel>?> getCartItems() async {
     Uri.parse("http://qsres.com/api/mobileapp/cart"),
     headers: {
       'Content-type': 'application/json',
-      'Accept': 'application/json',
       'Authorization': 'Bearer ${token.toString()}',
     },
   );
@@ -35,9 +35,10 @@ Future<void> addToCart(int productId, int pcs) async {
   final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
   final headers = {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
     'Authorization': 'Bearer ${token.toString()}',
   };
+  print(headers.toString());
+
   Map<String, dynamic> body = {'productId': productId, 'pcs': pcs};
 
   String jsonBody = json.encode(body);
@@ -65,7 +66,6 @@ Future<void> deleteAnItemCompletely(int productId) async {
   final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
   final headers = {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
     'Authorization': 'Bearer ${token.toString()}',
   };
   Map<String, dynamic> body = {'productId': productId};
@@ -93,7 +93,7 @@ class CartProvider with ChangeNotifier {
 
   loadItems() async {
     await getCartItems().then((value) {
-      if (value != null) {
+      if (value != null && value.length>0) {
         cartItems.clear();
         var total= 0.0;
         var pcs=0;
