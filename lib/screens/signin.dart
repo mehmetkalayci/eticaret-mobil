@@ -90,12 +90,37 @@ class _SigninPageState extends State<SigninPage> {
 
       AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
 
-      auth.Login(phoneNumber, otpController.text.trim());
 
-      if(auth.isLoggedIn) {
-        menu.setCurrentPage(0);
-      }
 
+        final response = await http.post(
+          Uri.parse('http://qsres.com/api/authentication/login'),
+          body: json.encode({
+            'phone': phoneNumber,
+            'smsConfirmationCode': otpController.text.trim()
+          }),
+          headers: {"Content-Type": "application/json"},
+          encoding: Encoding.getByName("utf-8"),
+        );
+
+      print("response.body");
+      print("response.body");
+      print("response.body");
+      print("response.body");
+      print("response.body");
+      print(response.body);
+
+
+      if (response.statusCode == 200) {
+          LoginResponseModel responseModel = LoginResponseModel.fromJson(json.decode(response.body));
+
+          await (await _storage).setString("accessToken", responseModel.token);
+          auth.InitAuth();
+          menu.setCurrentPage(0);
+
+        } else {
+          HataModel hata = HataModel.fromJson(jsonDecode(response.body));
+          Fluttertoast.showToast(msg: hata.detail);
+        }
 
 
       setState(() {
@@ -170,7 +195,7 @@ class _SigninPageState extends State<SigninPage> {
                     visible: _smsRequested,
                     child: TextFormField(
                       style: TextStyle(fontSize: 18),
-                      inputFormatters: [MaskTextInputFormatter(mask: '######')],
+                      inputFormatters: [MaskTextInputFormatter(mask: '####')],
                       cursorColor: Colors.black,
                       cursorWidth: 0.75,
                       controller: otpController,

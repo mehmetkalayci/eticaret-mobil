@@ -10,10 +10,6 @@ class UserAuthCheckForCartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
-    print(auth);
-    print(auth.isLoggedIn);
-    print(auth.token);
-
     return auth.isLoggedIn ? CartPage() : SigninPage();
   }
 }

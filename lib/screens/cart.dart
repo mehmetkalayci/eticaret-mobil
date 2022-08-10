@@ -1,18 +1,11 @@
-import 'dart:convert';
-
-import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
-import 'package:ecommerce_mobile/screens/payment.dart';
 import 'package:ecommerce_mobile/widgets/basket_item.dart';
 import 'package:ecommerce_mobile/widgets/my_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart'as http;
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -22,23 +15,47 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-
   @override
   Widget build(BuildContext context) {
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
-    CartProvider cart = Provider.of<CartProvider>(context, listen: true);
-
+    CartProvider cart = Provider.of<CartProvider>(context, listen: false);
 
     return Stack(children: [
       CustomScrollView(slivers: [
         SliverToBoxAdapter(
-            child: CustomAppBar(
-                context, Icons.shopping_basket_rounded, "Sepet"),
+          child: CustomAppBar(context, Icons.shopping_basket_rounded, "Sepet"),
         ),
-
-
+        SliverToBoxAdapter(
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: cart.cartItems.length,
+            itemBuilder: (context, index) {
+              return Slidable(
+                endActionPane: ActionPane(
+                  extentRatio: 0.25,
+                  motion: ScrollMotion(),
+                  children: [
+                    SlidableAction(
+                      flex: 1,
+                      onPressed: (context) {
+                        cart.removeItemCompletely(
+                          cart.cartItems[index].productId,
+                        );
+                      },
+                      backgroundColor: Color(0xFFFE4A49),
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete_sweep_rounded,
+                    ),
+                  ],
+                ),
+                child: BasketItem(cartItem: cart.cartItems[index]),
+              );
+            },
+          ),
+        ),
+/*
         SliverAnimatedList(
-          initialItemCount: cart.cartItems.length,
+          initialItemCount: cart.cartItems.length.compareTo(0),
           itemBuilder: (context, index, animation) => SizeTransition(
             sizeFactor: animation,
             child: Slidable(
@@ -63,14 +80,10 @@ class _CartPageState extends State<CartPage> {
             ),
           ),
         ),
-
+*/
 
         SliverPadding(padding: EdgeInsets.only(bottom: 190)),
       ]),
-
-
-
-
       Positioned(
         bottom: 0,
         left: 0,
@@ -86,9 +99,9 @@ class _CartPageState extends State<CartPage> {
                 flex: 2,
                 child: MaterialButton(
                   onPressed: () {
-                    if(cart.getTotalItemCount>0){
+                    if (cart.getTotalItemCount > 0) {
                       menu.setCurrentPage(7);
-                    }else{
+                    } else {
                       Fluttertoast.showToast(msg: "Sepetinizde ürün yok!");
                     }
                   },
@@ -161,5 +174,4 @@ class _CartPageState extends State<CartPage> {
       ),
     ]);
   }
-
 }

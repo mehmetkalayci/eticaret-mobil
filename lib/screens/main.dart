@@ -2,13 +2,11 @@ import 'package:badges/badges.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
-import 'package:ecommerce_mobile/screens/cart.dart';
 import 'package:ecommerce_mobile/screens/home.dart';
 import 'package:ecommerce_mobile/screens/payment.dart';
 import 'package:ecommerce_mobile/screens/product_details.dart';
 import 'package:ecommerce_mobile/screens/product_list.dart';
 import 'package:ecommerce_mobile/screens/search.dart';
-import 'package:ecommerce_mobile/screens/signin.dart';
 import 'package:ecommerce_mobile/screens/signup.dart';
 import 'package:ecommerce_mobile/screens/user_auth_check_for_signin.dart';
 import 'package:ecommerce_mobile/screens/user_auth_check_for_cart.dart';
@@ -65,15 +63,21 @@ class _MainPageState extends State<MainPage> {
   //#endregion
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<AuthProvider>(context, listen: false).InitAuth();
+      Provider.of<CartProvider>(context, listen: false).loadItems();
+    });
+  }
+
+
+
+
+
+  @override
   Widget build(BuildContext context) {
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
-
-    // başlangıçta geçerli kullanıcı tokenini var mı, varsa yükle,
-    // provider ile diğer formlarla bu bilgiyi paylaş
-    Provider.of<AuthProvider>(context, listen: false);
-    // başlangıçta kullanıcının sepetini yükle
-    Provider.of<CartProvider>(context, listen: false).loadItems();
-
 
     return Scaffold(
       drawerEnableOpenDragGesture: false,
@@ -105,6 +109,8 @@ class _MainPageState extends State<MainPage> {
 
   Widget _bottomNavigationBar() {
     Size size = MediaQuery.of(context).size;
+    // bunları listen:false yaparsan menu geçişleri gerçekleşmiyor
+
     MenuProvider menu = Provider.of<MenuProvider>(context);
     CartProvider cart = Provider.of<CartProvider>(context);
 

@@ -1,7 +1,6 @@
 import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class BasketItem extends StatefulWidget {
@@ -14,27 +13,10 @@ class BasketItem extends StatefulWidget {
 }
 
 class _BasketItemState extends State<BasketItem> {
-  // DateTime loginClickTime;
-  //
-  // bool isRedundentClick(DateTime currentTime){
-  //   if(loginClickTime==null){
-  //     loginClickTime = currentTime;
-  //     print("first click");
-  //     return false;
-  //   }
-  //   print('diff is ${currentTime.difference(loginClickTime).inSeconds}');
-  //   if(currentTime.difference(loginClickTime).inSeconds<10){//set this difference time in seconds
-  //     return true;
-  //   }
-  //
-  //   loginClickTime = currentTime;
-  //   return false;
-  // }
 
   @override
   Widget build(BuildContext context) {
     CartProvider cart = Provider.of<CartProvider>(context, listen: false);
-    bool selectionIsActive = false;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -96,7 +78,7 @@ class _BasketItemState extends State<BasketItem> {
                           padding: EdgeInsets.zero,
                           splashRadius: 10,
                         ),
-                        Text(cart.getProductPcs[widget.cartItem.productId].toString()),
+                        Text(widget.cartItem.pcs.toString()),
                         IconButton(
                           onPressed: () {
                             cart.insertItem(widget.cartItem.productId, 1);

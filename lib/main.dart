@@ -5,18 +5,13 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
-import 'package:ecommerce_mobile/screens/home.dart';
 import 'package:ecommerce_mobile/screens/main.dart';
 import 'package:ecommerce_mobile/screens/noconn.dart';
-import 'package:ecommerce_mobile/screens/signin.dart';
-import 'package:ecommerce_mobile/screens/user_profile.dart';
-import 'package:ecommerce_mobile/screens/user_promotions.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:jwt_decode/jwt_decode.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -68,6 +63,10 @@ Future<void> main() async {
     // Error getting token.
   });
 
+  final _storage = SharedPreferences.getInstance();
+
+  print((await _storage).get("accessToken"));
+
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     print('Got a message whilst in the foreground!');
     print('Message data: ${message.data}');
@@ -81,6 +80,9 @@ Future<void> main() async {
 
   runApp(MyApp());
 }
+
+
+
 
 class MyApp extends StatefulWidget {
   @override

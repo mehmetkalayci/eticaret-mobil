@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +36,6 @@ Future<void> addToCart(int productId, int pcs) async {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ${token.toString()}',
   };
-  print(headers.toString());
 
   Map<String, dynamic> body = {'productId': productId, 'pcs': pcs};
 
@@ -92,49 +90,56 @@ class CartProvider with ChangeNotifier {
   List<CartModel> cartItems = [];
 
   loadItems() async {
-    await getCartItems().then((value) {
-      if (value != null && value.length>0) {
-        cartItems.clear();
-        var total= 0.0;
-        var pcs=0;
-        _getProductPcs.clear();
-        value.forEach((element) {
-          cartItems.add(element);
-          if (element.isDiscounted) {
-            total += element.discountedPrice * element.pcs;
-          } else {
-            total += element.sellingPrice * element.pcs;
-          }
-          if(_getProductPcs[element.productId]==null){
-            _getProductPcs[element.productId]=0;
-          }
-          _getProductPcs.update(element.productId, (value) => value + element.pcs);
-          pcs += element.pcs;
-        });
-        _getTotalItemCount=pcs;
-        _totalAmount=total;
-        notifyListeners();
-      }
+    List<CartModel>? basketItems = await getCartItems();
+    cartItems.clear();
+    basketItems?.forEach((item) {
+      cartItems.add(item);
     });
+
+    notifyListeners();
   }
 
   insertItem(int productId, int adet) {
-    addToCart(productId, 1).then((value) => loadItems());
+    addToCart(productId, adet).then((value) => loadItems());
   }
-  double _totalAmount=0.0;
-  double get totalAmount =>_totalAmount;
-
-  Map<int,int> _getProductPcs={0:0};
-  Map<int,int> get getProductPcs =>_getProductPcs;
-
-  int _getTotalItemCount=0;
-  int get getTotalItemCount =>_getTotalItemCount;
 
   void removeItem(int productId) {
-    addToCart(productId, -1).then((value) => loadItems());
+    addToCart(productId, -1).then((value) async {
+      await loadItems();
+    });
   }
 
   void removeItemCompletely(int productId) {
-    deleteAnItemCompletely(productId).then((value) => loadItems());
+    deleteAnItemCompletely(productId).then((value) async {
+      await loadItems();
+    });
   }
+
+  double _totalAmount = 0.0;
+  double get totalAmount {
+    _totalAmount = 0.0;
+
+    cartItems.forEach((item) {
+      if(item.isDiscounted) {
+        _totalAmount += item.discountedPrice;
+      }else{
+        _totalAmount+=item.sellingPrice;
+      }
+    });
+
+    return _totalAmount;
+  }
+
+  int _getTotalItemCount = 0;
+  int get getTotalItemCount {
+    _getTotalItemCount = 0;
+
+    cartItems.forEach((item) {
+      _getTotalItemCount += item.pcs;
+    });
+
+    return _getTotalItemCount;
+  }
+
+
 }

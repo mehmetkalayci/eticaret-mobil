@@ -5,20 +5,17 @@ import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-bool firstLoad=true;
+
 Widget MyDrawerMenu(BuildContext context) {
-    MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
-    CartProvider cart = Provider.of<CartProvider>(context, listen: false);
-    AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
-    /*İLK KEZ ÇALIŞACAKSA*/
+  MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
+  CartProvider cart = Provider.of<CartProvider>(context, listen: false);
+  AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
 
-
-
-    return Drawer(
-      child: Column(children: [
-        DrawerHeader(
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
+  return Drawer(
+    child: Column(children: [
+      DrawerHeader(
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
         ),
         child: Center(
           child: Image.asset(
@@ -64,16 +61,17 @@ Widget MyDrawerMenu(BuildContext context) {
           Navigator.of(context).pop();
         },
       ),
-      // Divider(height: 0),
-      // ListTile(
-      //   minLeadingWidth: 20,
-      //   leading: Icon(Icons.person_rounded),
-      //   title: const Text('Hesabım'),
-      //   onTap: () {
-      //     menu.setMenuIndex(2);
-      //     Navigator.of(context).pop();
-      //   },
-      // ),
+      Divider(height: 0),
+      if (auth.isLoggedIn)
+        ListTile(
+          minLeadingWidth: 20,
+          leading: Icon(Icons.person_rounded),
+          title: const Text('Hesabım'),
+          onTap: () {
+            menu.setCurrentPage(3);
+            Navigator.of(context).pop();
+          },
+        ),
       // Divider(height: 0),
       // ListTile(
       //   minLeadingWidth: 20,
@@ -82,7 +80,6 @@ Widget MyDrawerMenu(BuildContext context) {
       //   onTap: () {},
       // ),
 
-      Divider(height: 0),
       if (!auth.isLoggedIn)
         ListTile(
           minLeadingWidth: 20,

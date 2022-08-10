@@ -5,7 +5,6 @@ import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class UserProfilePage extends StatefulWidget {
@@ -16,16 +15,13 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-  final _storage = SharedPreferences.getInstance();
 
-  Future<ProfileModel?> getProfile() async {
-    Object? token = await (await _storage).get("accessToken");
-
+  Future<ProfileModel?> getProfile(String token) async {
     final response = await http.get(
       Uri.parse("http://qsres.com/api/authentication/me"),
       headers: {
         'Content-type': 'application/json',
-        'Authorization': 'Bearer ${token.toString()}',
+        'Authorization': 'Bearer ${token}',
       },
     );
 
@@ -44,7 +40,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
     return Scaffold(
       body: FutureBuilder(
-        future: getProfile(),
+        future: getProfile(auth.token),
         builder: (BuildContext context, AsyncSnapshot<ProfileModel?> snapshot) {
           if (snapshot.hasData) {
             if(snapshot.data == null){

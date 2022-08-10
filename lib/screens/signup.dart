@@ -1,12 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:ecommerce_mobile/models/hata_model.dart';
-import 'package:ecommerce_mobile/models/user_model.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/agreement.dart';
-import 'package:ecommerce_mobile/screens/user_profile.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,10 +10,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class SignupPage extends StatefulWidget {
   @override
@@ -72,7 +65,7 @@ class _SignupPageState extends State<SignupPage> {
         body: json.encode({
           "fullName": adSoyadController.text.trim(),
           "businessName": firmaAdiController.text.trim(),
-          "phone": telefonController.text.trim(),
+          "phone": telefonController.text.trim().replaceAll('-', ''),
           "password": telefonController.text.trim(),
           "address": adresController.text.trim(),
         }),
