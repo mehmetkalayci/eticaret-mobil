@@ -61,7 +61,7 @@ class _SignupPageState extends State<SignupPage> {
       });
 
       final response = await http.post(
-        Uri.parse('http://qsres.com/api/authentication/register'),
+        Uri.parse('http://api.qsres.com/authentication/register'),
         body: json.encode({
           "fullName": adSoyadController.text.trim(),
           "businessName": firmaAdiController.text.trim(),
@@ -230,36 +230,6 @@ class _SignupPageState extends State<SignupPage> {
                     },
                   ),
                   SizedBox(height: 15),
-                  Visibility(
-                    visible: _smsRequested,
-                    child: TextFormField(
-                      style: TextStyle(fontSize: 18),
-                      cursorColor: Colors.black,
-                      cursorWidth: 0.75,
-                      controller: otpController,
-                      decoration: InputDecoration(
-                        labelText: "Doğrulama Kodu",
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        hintText: "Doğrulama Kodu",
-                        prefixIcon:
-                            Icon(Icons.password_rounded, color: Colors.grey),
-                        filled: true,
-                      ),
-                      textInputAction: TextInputAction.done,
-                      validator: (val) {
-                        if (val != null && val.trim().isNotEmpty) {
-                          return null;
-                        } else {
-                          return "SMS ile gelen doğrulama kodunu girin!";
-                        }
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 15),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(
@@ -272,9 +242,7 @@ class _SignupPageState extends State<SignupPage> {
                         PageTransition(
                           type: PageTransitionType.fade,
                           child: AgreementPage(
-                              title: "Üyelik Sözleşmesi",
-                              agreementURL:
-                                  "http://qsres.com/api/mobileapp/agreement"),
+                              title: "Üyelik Sözleşmesi"),
                         ),
                       );
 

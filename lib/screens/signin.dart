@@ -43,7 +43,7 @@ class _SigninPageState extends State<SigninPage> {
         otpController.clear();
 
         final uri =
-            Uri.parse('http://qsres.com/api/authentication/sms-request');
+            Uri.parse('http://api.qsres.com/authentication/sms-request');
 
         final response = await http.post(uri,
             body: json.encode({'phone': phoneNumber}),
@@ -94,7 +94,7 @@ class _SigninPageState extends State<SigninPage> {
 
 
         final response = await http.post(
-          Uri.parse('http://qsres.com/api/authentication/login'),
+          Uri.parse('http://api.qsres.com/authentication/login'),
           body: json.encode({
             'phone': phoneNumber,
             'smsConfirmationCode': otpController.text.trim()

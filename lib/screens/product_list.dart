@@ -44,7 +44,7 @@ class _ProductListPageState extends State<ProductListPage>
 
   Future<List<CategoryModel>> fetchCategories() async {
     final response =
-        await http.get(Uri.parse('http://qsres.com/api/mobileapp/categories'));
+        await http.get(Uri.parse('http://api.qsres.com/mobileapp/categories'));
 
     if (response.statusCode == 200) {
       //return CategoryModel.fromJson(jsonDecode(response.body));
@@ -85,7 +85,7 @@ class _ProductListPageState extends State<ProductListPage>
 
   Future<List<ProductModel>> fetchProducts(int categoryId) async {
     final response = await http.get(Uri.parse(
-        'http://qsres.com/api/mobileapp/categories/$categoryId/products'));
+        'http://api.qsres.com/mobileapp/categories/$categoryId/products'));
 
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body);

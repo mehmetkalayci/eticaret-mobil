@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ecommerce_mobile/models/profile_model.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/widgets/custom_radiobutton.dart';
@@ -50,7 +52,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
 
       final response =
-          await http.post(Uri.parse('http://qsres.com/api/mobileapp/purchase'),
+          await http.post(Uri.parse('http://api.qsres.com/mobileapp/purchase'),
               body: json.encode({
                 "paymentType": paymentType,
                 "appliedDiscountCode": "İndirim Kodu Gelecek",
@@ -65,10 +67,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
 
       if (response.statusCode == 200) {
-        // todo: belki cart i temizlemek gerekir
         Provider.of<CartProvider>(context, listen: false).loadItems();
-        addressController.clear();
-        noteController.clear();
 
         Fluttertoast.showToast(msg: "Siparişleriniz alınmıştır.", toastLength: Toast.LENGTH_LONG);
         Provider.of<MenuProvider>(context, listen: false).setCurrentPage(8);
@@ -86,9 +85,28 @@ class _PaymentPageState extends State<PaymentPage> {
     }
   }
 
+  Future<ProfileModel?> getProfileInfo(String token) async {
+    final response = await http.get(
+      Uri.parse("http://api.qsres.com/authentication/me"),
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ${token}',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return ProfileModel.fromJson(json.decode(response.body));
+    } else {
+      return null;
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     CartProvider cart = Provider.of<CartProvider>(context, listen: false);
+    AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
 
     return Scaffold(
       appBar: CustomAppBar(context, Icons.payment_rounded, "Ödeme"),
@@ -136,35 +154,75 @@ class _PaymentPageState extends State<PaymentPage> {
                   //   onChanged: (value) => setState(() => _valueOfPayment = value!),
                   // ),
                   CustomTitle(context, "TESLİMAT ADRESİ"),
-                  TextFormField(
-                    controller: addressController,
-                    style: TextStyle(fontSize: 18),
-                    minLines: 2,
-                    maxLines: 2,
-                    cursorColor: Colors.black,
-                    cursorWidth: 0.75,
-                    decoration: InputDecoration(
-                      labelText: ("Adres"),
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      hintText: 'Adres',
-                      prefixIcon: Icon(
-                        Icons.pin_drop_rounded,
-                        color: Colors.grey,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                    ),
-                    textInputAction: TextInputAction.next,
-                    onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                    validator: (val) {
-                      if (val != null && val.trim().length > 10) {
-                        return null;
-                      } else {
-                        return "Teslimat adresi girin!";
+                  FutureBuilder(
+                    future: getProfileInfo(auth.token),
+                    builder: (BuildContext context, AsyncSnapshot<ProfileModel?> snapshot) {
+                      if(snapshot.hasData) {
+                        return TextFormField(
+                          controller: addressController..text = snapshot.data?.address,
+                          style: TextStyle(fontSize: 18),
+                          minLines: 2,
+                          maxLines: 2,
+                          cursorColor: Colors.black,
+                          cursorWidth: 0.75,
+                          decoration: InputDecoration(
+                            labelText: ("Adres"),
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            hintText: 'Adres',
+                            prefixIcon: Icon(
+                              Icons.pin_drop_rounded,
+                              color: Colors.grey,
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                          ),
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                          validator: (val) {
+                            if (val != null && val.trim().length > 10) {
+                              return null;
+                            } else {
+                              return "Teslimat adresi girin!";
+                            }
+                          },
+                        );
+                      } else if(snapshot.hasError) {
+                        return TextFormField(
+                          controller: addressController,
+                          style: TextStyle(fontSize: 18),
+                          minLines: 2,
+                          maxLines: 2,
+                          cursorColor: Colors.black,
+                          cursorWidth: 0.75,
+                          decoration: InputDecoration(
+                            labelText: ("Adres"),
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            hintText: 'Adres',
+                            prefixIcon: Icon(
+                              Icons.pin_drop_rounded,
+                              color: Colors.grey,
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                          ),
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                          validator: (val) {
+                            if (val != null && val.trim().length > 10) {
+                              return null;
+                            } else {
+                              return "Teslimat adresi girin!";
+                            }
+                          },
+                        );
                       }
+                      return Center(child: CircularProgressIndicator());
                     },
                   ),
                   CustomTitle(context, "SİPARİŞ NOTUNUZ"),

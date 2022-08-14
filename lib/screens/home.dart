@@ -29,14 +29,14 @@ class _HomePageState extends State<HomePage> {
 
   Future<HomepageModel> fetchHomepage() async {
     final response =
-        await http.get(Uri.parse('http://qsres.com/api/mobileapp/home'));
+        await http.get(Uri.parse('http://api.qsres.com/mobileapp/home'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
       return HomepageModel.fromJson(jsonDecode(response.body));
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
-      throw Exception('Failed to load album');
+      throw Exception('Failed to load homepage');
     }
   }
 
@@ -55,6 +55,7 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder(
       future: _homepageModelFuture,
       builder: (BuildContext context, AsyncSnapshot<HomepageModel> snapshot) {
+        print(snapshot);
         if (snapshot.hasData) {
           return CustomScrollView(
             slivers: [
@@ -165,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                           autoPlay: true,
                           enlargeCenterPage: true,
                           viewportFraction: 1.0,
-                          height: 200,
+                          height: 215,
                           pageSnapping: true,
                           onPageChanged: (index, reason) {
                             setState(() {

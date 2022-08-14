@@ -13,7 +13,7 @@ Future<List<CartModel>?> getCartItems() async {
   Object? token = await (await _storage).get("accessToken");
 
   final response = await http.get(
-    Uri.parse("http://qsres.com/api/mobileapp/cart"),
+    Uri.parse("http://api.qsres.com/mobileapp/cart"),
     headers: {
       'Content-type': 'application/json',
       'Authorization': 'Bearer ${token.toString()}',
@@ -31,7 +31,7 @@ Future<List<CartModel>?> getCartItems() async {
 Future<void> addToCart(int productId, int pcs) async {
   Object? token = await (await _storage).get("accessToken");
 
-  final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
+  final uri = Uri.parse('http://api.qsres.com/mobileapp/cart');
   final headers = {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ${token.toString()}',
@@ -61,7 +61,7 @@ Future<void> addToCart(int productId, int pcs) async {
 Future<void> deleteAnItemCompletely(int productId) async {
   Object? token = await (await _storage).get("accessToken");
 
-  final uri = Uri.parse('http://qsres.com/api/mobileapp/cart');
+  final uri = Uri.parse('http://api.qsres.com/mobileapp/cart');
   final headers = {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ${token.toString()}',

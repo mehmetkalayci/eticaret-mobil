@@ -28,7 +28,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<List<SearchResultModel>> fetchSearchResult(String query) async {
     if (query.trim() != "") {
-      final response = await http.get(Uri.parse('http://qsres.com/api/mobileapp/search?q=$query'));
+      final response = await http.get(Uri.parse('http://api.qsres.com/mobileapp/search?q=$query'));
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response, then parse the JSON.
         List jsonResponse = json.decode(response.body);

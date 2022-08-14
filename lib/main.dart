@@ -17,66 +17,51 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 
-FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-  Fluttertoast.showToast(msg: message.toString());
-}
+// FirebaseMessaging messaging = FirebaseMessaging.instance;
+//
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   print("Handling a background message: ${message.messageId}");
+//   Fluttertoast.showToast(msg: message.notification!.body.toString());
+// }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // initialize firebase app
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // ios permission
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
-
-  // listen for background messages
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // get fcm token
-  final fcmToken = await messaging.getToken();
-
-  print("***************************");
-  print("FCM TOKEN");
-  print(fcmToken);
-  print("***************************");
-
-  // FCM Token değiştiğinde
-  FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
-    // TODO: If necessary send token to application server.
-
-    // Note: This callback is fired at each app startup and whenever a new token is generated.
-  }).onError((err) {
-    // Error getting token.
-  });
-
-  final _storage = SharedPreferences.getInstance();
-
-  print((await _storage).get("accessToken"));
-
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
-
-    Fluttertoast.showToast(msg: message.toString());
-
-    if (message.notification != null) {
-      print('Message also contained a notification: ${message.notification}');
-    }
-  });
+  // // initialize firebase app
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
+  //
+  // // ios permission
+  // NotificationSettings settings = await messaging.requestPermission(
+  //   alert: true,
+  //   announcement: false,
+  //   badge: true,
+  //   carPlay: false,
+  //   criticalAlert: false,
+  //   provisional: false,
+  //   sound: true,
+  // );
+  //
+  // // get fcm token
+  // final fcmToken = await messaging.getToken();
+  // log(fcmToken.toString());
+  //
+  // final _storage = SharedPreferences.getInstance();
+  //
+  // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //   print('Got a message whilst in the foreground!');
+  //   print('Message data: ${message.data}');
+  //
+  //   Fluttertoast.showToast(msg: message.notification!.body.toString());
+  //
+  //   if (message.notification != null) {
+  //     print('Message also contained a notification: ${message.notification}');
+  //   }
+  // });
+  //
+  // // listen for background messages
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(MyApp());
 }

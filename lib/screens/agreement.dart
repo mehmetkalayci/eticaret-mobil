@@ -4,9 +4,8 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 
 class AgreementPage extends StatefulWidget {
-  const AgreementPage({Key? key, required this.agreementURL, required this.title}) : super(key: key);
+  const AgreementPage({Key? key,  required this.title}) : super(key: key);
 
-  final String agreementURL;
   final String title;
 
   @override
@@ -17,12 +16,13 @@ class _AgreementPageState extends State<AgreementPage> {
   String htmlData = "";
 
   fetchSearchResult() async {
-      final response = await http.get(Uri.parse(widget.agreementURL));
+      final response = await http.get(Uri.parse("http://api.qsres.com/mobileapp/agreement"));
       if (response.statusCode == 200) {
         htmlData = response.body.toString();
       }else{
         htmlData = "<h1>Sözleşme yüklenemedi!<h1>";
       }
+      setState((){});
   }
 
 

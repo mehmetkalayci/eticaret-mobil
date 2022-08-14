@@ -19,7 +19,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Future<ProfileModel?> getProfile(String token) async {
     final response = await http.get(
-      Uri.parse("http://qsres.com/api/authentication/me"),
+      Uri.parse("http://api.qsres.com/authentication/me"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': 'Bearer ${token}',

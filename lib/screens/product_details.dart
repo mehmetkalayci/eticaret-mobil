@@ -43,7 +43,7 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   Future<ProductModel?> fetchProduct() async {
     final response = await http.get(Uri.parse(
-        'http://qsres.com/api/mobileapp/products/${widget.productId}'));
+        'http://api.qsres.com/mobileapp/products/${widget.productId}'));
 
     if (response.statusCode == 200) {
       return ProductModel.fromJson(jsonDecode(response.body));

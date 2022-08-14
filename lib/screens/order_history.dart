@@ -20,7 +20,7 @@ class OrderHistoryPage extends StatelessWidget {
 
   Future<List<OrderHistoryModel>?> getOrderHistory(String token) async {
     final response = await http.get(
-      Uri.parse("http://qsres.com/api/MobileApp/orders"),
+      Uri.parse("http://api.qsres.com/mobileapp/orders"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': 'Bearer ${token}',
@@ -43,7 +43,7 @@ class OrderHistoryPage extends StatelessWidget {
 
   Future<OrderModel?> getOrderDetails(String token, String orderId) async {
     final response = await http.get(
-      Uri.parse("http://qsres.com/api/MobileApp/orders/${orderId}"),
+      Uri.parse("http://api.qsres.com/mobileapp/orders/${orderId}"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': 'Bearer ${token}',
