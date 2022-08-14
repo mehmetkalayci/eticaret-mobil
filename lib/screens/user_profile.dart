@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ecommerce_mobile/models/profile_model.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
+import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +38,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
     AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
+    CartProvider cart = Provider.of<CartProvider>(context, listen: false);
 
     return Scaffold(
       body: FutureBuilder(
@@ -85,6 +87,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       onPressed: () async {
                         menu.setCurrentPage(0);
                         auth.Logout();
+                        cart.cartItems.clear();
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -98,6 +101,36 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ),
                     SizedBox(height: 30),
                     /****************************************************/
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                      child: MaterialButton(
+                          onPressed: () {
+                            menu.setCurrentPage(8);
+                          },
+                          height: 60,
+                          color: Colors.grey.shade200,
+                          focusElevation: 0,
+                          highlightElevation: 0,
+                          hoverElevation: 0,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.shopping_bag_rounded),
+                              SizedBox(width: 10),
+                              Text(
+                                "Sipariş Geçmişi",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w400),
+                              ),
+                              Spacer(),
+                              Icon(Icons.arrow_forward_rounded)
+                            ],
+                          )),
+                    ),
+                    //
                     // Padding(
                     //   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                     //   child: MaterialButton(
@@ -124,7 +157,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     //           Icon(Icons.verified_user_rounded),
                     //           SizedBox(width: 10),
                     //           Text(
-                    //             "Bilgileri Düzenle",
+                    //             "Siparişlerim",
                     //             style: TextStyle(
                     //                 fontSize: 18, fontWeight: FontWeight.w400),
                     //           ),
@@ -133,7 +166,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     //         ],
                     //       )),
                     // ),
-
+                    //
                     // Padding(
                     //   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                     //   child: MaterialButton(
@@ -168,7 +201,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     // Padding(
                     //   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                     //   child: MaterialButton(
-                    //     onPressed: () {},
+                    //     onPressed: () {
+                    //       cart.cartItems.clear();
+                    //     },
                     //     height: 60,
                     //     color: Colors.red.shade600,
                     //     textColor: Colors.white,
@@ -194,6 +229,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     //     ),
                     //   ),
                     // ),
+                    SizedBox(height: 120),
                   ],
                 ),
               );

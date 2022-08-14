@@ -3,6 +3,7 @@ import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/screens/home.dart';
+import 'package:ecommerce_mobile/screens/order_history.dart';
 import 'package:ecommerce_mobile/screens/payment.dart';
 import 'package:ecommerce_mobile/screens/product_details.dart';
 import 'package:ecommerce_mobile/screens/product_list.dart';
@@ -55,6 +56,9 @@ class _MainPageState extends State<MainPage> {
         break;
       case 7:
         activePage = PaymentPage();
+        break;
+      case 8:
+        activePage = OrderHistoryPage();
         break;
     }
     return activePage;

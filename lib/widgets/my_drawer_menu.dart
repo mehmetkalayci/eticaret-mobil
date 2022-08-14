@@ -101,7 +101,50 @@ Widget MyDrawerMenu(BuildContext context) {
             Navigator.of(context).pop();
           },
         ),
-      Divider(height: 0),
+      // Divider(height: 0),
+      // ListTile(
+      //   minLeadingWidth: 20,
+      //   leading: Icon(Icons.money_rounded),
+      //   title: const Text('Banka Hesap Bilgilerimiz'),
+      //   onTap: () {
+      //     //menu.setCurrentPage(1);
+      //     Navigator.of(context).pop();
+      //   },
+      // ),
+      // Divider(height: 0),
+      // ListTile(
+      //   minLeadingWidth: 20,
+      //   leading: Icon(Icons.privacy_tip_rounded),
+      //   title: const Text('Gizlilik Politikası'),
+      //   onTap: () {
+      //     //menu.setCurrentPage(1);
+      //     Navigator.of(context).pop();
+      //   },
+      // ),
+      // Divider(height: 0),
+      // ListTile(
+      //   minLeadingWidth: 20,
+      //   leading: Icon(Icons.verified_rounded),
+      //   title: const Text('Şartlar ve Koşullar'),
+      //   onTap: () {
+      //     //menu.setCurrentPage(1);
+      //     Navigator.of(context).pop();
+      //   },
+      // ),
+      // Divider(height: 0),
+      // ListTile(
+      //   minLeadingWidth: 20,
+      //   leading: Icon(Icons.info_outline_rounded),
+      //   title: const Text('Hakkımızda'),
+      //   onTap: () {
+      //     //menu.setCurrentPage(1);
+      //     Navigator.of(context).pop();
+      //   },
+      // ),
+      // Divider(height: 0),
+
+
+
       Spacer(),
       Divider(height: 0),
       ListTile(

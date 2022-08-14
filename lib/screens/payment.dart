@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
+import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/widgets/custom_radiobutton.dart';
 import 'package:ecommerce_mobile/widgets/custom_title.dart';
 import 'package:ecommerce_mobile/widgets/my_appbar.dart';
@@ -59,15 +60,20 @@ class _PaymentPageState extends State<PaymentPage> {
               encoding: Encoding.getByName("utf-8"),
               headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
                 'Authorization': 'Bearer ${token.toString()}',
           });
 
 
       if (response.statusCode == 200) {
         // todo: belki cart i temizlemek gerekir
+        Provider.of<CartProvider>(context, listen: false).loadItems();
+        addressController.clear();
+        noteController.clear();
 
-        Fluttertoast.showToast(msg: "Siparişleriniz alınmıştır.");
+        Fluttertoast.showToast(msg: "Siparişleriniz alınmıştır.", toastLength: Toast.LENGTH_LONG);
+        Provider.of<MenuProvider>(context, listen: false).setCurrentPage(8);
+
+
       } else if (response.statusCode == 401) {
         Fluttertoast.showToast(msg: "Sipariş verebilmek için oturum açın.");
       } else {

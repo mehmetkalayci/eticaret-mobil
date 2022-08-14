@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ecommerce_mobile/models/hata_model.dart';
 import 'package:ecommerce_mobile/models/login_response_model.dart';
+import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -102,12 +103,6 @@ class _SigninPageState extends State<SigninPage> {
           encoding: Encoding.getByName("utf-8"),
         );
 
-      print("response.body");
-      print("response.body");
-      print("response.body");
-      print("response.body");
-      print("response.body");
-      print(response.body);
 
 
       if (response.statusCode == 200) {
@@ -116,6 +111,7 @@ class _SigninPageState extends State<SigninPage> {
           await (await _storage).setString("accessToken", responseModel.token);
           auth.InitAuth();
           menu.setCurrentPage(0);
+          Provider.of<CartProvider>(context, listen: false).loadItems();
 
         } else {
           HataModel hata = HataModel.fromJson(jsonDecode(response.body));

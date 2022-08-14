@@ -86,6 +86,8 @@ Future<void> deleteAnItemCompletely(int productId) async {
   }
 }
 
+
+
 class CartProvider with ChangeNotifier {
   List<CartModel> cartItems = [];
 
@@ -121,9 +123,9 @@ class CartProvider with ChangeNotifier {
 
     cartItems.forEach((item) {
       if(item.isDiscounted) {
-        _totalAmount += item.discountedPrice;
+        _totalAmount += item.discountedPrice * item.pcs;
       }else{
-        _totalAmount+=item.sellingPrice;
+        _totalAmount+=item.sellingPrice * item.pcs;
       }
     });
 

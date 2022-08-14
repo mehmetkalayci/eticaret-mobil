@@ -26,62 +26,37 @@ class _CartPageState extends State<CartPage> {
           child: CustomAppBar(context, Icons.shopping_basket_rounded, "Sepet"),
         ),
         SliverToBoxAdapter(
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: cart.cartItems.length,
-            itemBuilder: (context, index) {
-              return Slidable(
-                endActionPane: ActionPane(
-                  extentRatio: 0.25,
-                  motion: ScrollMotion(),
-                  children: [
-                    SlidableAction(
-                      flex: 1,
-                      onPressed: (context) {
-                        cart.removeItemCompletely(
-                          cart.cartItems[index].productId,
-                        );
-                      },
-                      backgroundColor: Color(0xFFFE4A49),
-                      foregroundColor: Colors.white,
-                      icon: Icons.delete_sweep_rounded,
-                    ),
-                  ],
+          child: (cart.cartItems.length > 0)
+              ? ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: cart.cartItems.length,
+                  itemBuilder: (context, index) {
+                    return Slidable(
+                      endActionPane: ActionPane(
+                        extentRatio: 0.25,
+                        motion: ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            flex: 1,
+                            onPressed: (context) {
+                              cart.removeItemCompletely(
+                                cart.cartItems[index].productId,
+                              );
+                            },
+                            backgroundColor: Color(0xFFFE4A49),
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete_sweep_rounded,
+                          ),
+                        ],
+                      ),
+                      child: BasketItem(cartItem: cart.cartItems[index]),
+                    );
+                  },
+                )
+              : Center(
+                  child: Text("Sepetinizde hiç ürün yok!"),
                 ),
-                child: BasketItem(cartItem: cart.cartItems[index]),
-              );
-            },
-          ),
         ),
-/*
-        SliverAnimatedList(
-          initialItemCount: cart.cartItems.length.compareTo(0),
-          itemBuilder: (context, index, animation) => SizeTransition(
-            sizeFactor: animation,
-            child: Slidable(
-              endActionPane: ActionPane(
-                extentRatio: 0.25,
-                motion: ScrollMotion(),
-                children: [
-                  SlidableAction(
-                    flex: 1,
-                    onPressed: (context) {
-                      cart.removeItemCompletely(
-                        cart.cartItems[index].productId,
-                      );
-                    },
-                    backgroundColor: Color(0xFFFE4A49),
-                    foregroundColor: Colors.white,
-                    icon: Icons.delete_sweep_rounded,
-                  ),
-                ],
-              ),
-              child: BasketItem(cartItem: cart.cartItems[index]),
-            ),
-          ),
-        ),
-*/
-
         SliverPadding(padding: EdgeInsets.only(bottom: 190)),
       ]),
       Positioned(

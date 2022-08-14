@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_mobile/models/cart_model.dart';
 import 'package:ecommerce_mobile/models/product_model.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/widgets/my_appbar.dart';
@@ -84,6 +85,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget build(BuildContext context) {
     CartProvider cart = Provider.of<CartProvider>(context);
     MenuProvider menu = Provider.of<MenuProvider>(context);
+    AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
 
 
     return FutureBuilder(
@@ -92,10 +94,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         if (snapshot.hasData) {
           if (snapshot.data != null) {
             productModel = snapshot.data!;
-
-            bool isAbleToAddToBasket = false;
-
-            isTokenExpired().then((value) => isAbleToAddToBasket = value);
 
             return Scaffold(
                 body: CustomScrollView(
@@ -238,7 +236,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             ),
                             SizedBox(height: 15),
                             Opacity(
-                              opacity: isAbleToAddToBasket == false ? 0.5 : 1,
+                              opacity: auth.isLoggedIn ? 1: 0.5,
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.start,

@@ -101,10 +101,11 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              SliverPadding(padding: EdgeInsets.all(10)),
-              SliverToBoxAdapter(
+              snapshot.data!.stories.isNotEmpty ?  SliverPadding(padding: EdgeInsets.all(10)) : SliverToBoxAdapter(),
+
+              snapshot.data!.stories.isNotEmpty ? SliverToBoxAdapter(
                 child: Container(
-                  height: 120,
+                  height:  120,
                   alignment: Alignment.center,
                   child: AdvStory(
                     storyCount: snapshot.data!.stories.length,
@@ -126,7 +127,8 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-              ),
+              ) : SliverToBoxAdapter(),
+
 
               /**  SLIDER  **/
               SliverToBoxAdapter(
@@ -268,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              const SliverPadding(padding: EdgeInsets.only(bottom: 120))
+              const SliverPadding(padding: EdgeInsets.only(bottom: 135))
             ],
           );
         } else if (snapshot.hasError) {
