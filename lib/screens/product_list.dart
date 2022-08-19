@@ -273,142 +273,158 @@ class _ProductListPageState extends State<ProductListPage>
               },
               body: CustomScrollView(
                 slivers: [
-                  SliverFillRemaining(
+                  SliverToBoxAdapter(
                     child: FutureBuilder(
                       future: futureProducts,
                       builder: (BuildContext context,
                           AsyncSnapshot<List<ProductModel>> snapshot) {
                         if (snapshot.hasData) {
                           if (snapshot.data!.length > 0) {
-                            return GridView.builder(
-                                shrinkWrap: true,
-                                physics: BouncingScrollPhysics(),
-                                padding: EdgeInsets.only(bottom: 120),
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: 0.7,
-                                  crossAxisSpacing: 2,
-                                  mainAxisSpacing: 2,
-                                  crossAxisCount: 2,
-                                ),
-                                itemCount: snapshot.data!.length,
-                                itemBuilder: (BuildContext ctx, index) {
-                                  return MaterialButton(
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      menu.setProductId(
-                                          snapshot.data![index].productId);
-                                      menu.setCategoryId(menu.categoryId);
-                                      menu.setCurrentPage(6);
+                            return Container(
+                              color: Colors.grey.shade200,
+                              child: GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: BouncingScrollPhysics(),
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    childAspectRatio: 0.5,
+                                    crossAxisSpacing: 2,
+                                    mainAxisSpacing: 2,
+                                    crossAxisCount: 2,
+                                  ),
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (BuildContext ctx, index) {
+                                    return MaterialButton(
+                                      color: Colors.white,
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () {
+                                        menu.setProductId(
+                                            snapshot.data![index].productId);
+                                        menu.setCategoryId(menu.categoryId);
+                                        menu.setCurrentPage(6);
 
-                                      // Navigator.push(
-                                      //   context,
-                                      //   PageTransition(
-                                      //     type: PageTransitionType.fade,
-                                      //     child: ProductDetailPage(
-                                      //       productId:
-                                      //           snapshot.data![index].productId,
-                                      //     ),
-                                      //   ),
-                                      // );
-                                    },
-                                    splashColor: Colors.grey.shade200,
-                                    highlightColor: Colors.white,
-                                    elevation: 0,
-                                    focusElevation: 0,
-                                    highlightElevation: 0,
-                                    hoverElevation: 0,
-                                    disabledElevation: 0,
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 5,
-                                        horizontal: 10,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          snapshot.data![index].productImages
-                                                      .length <=
-                                                  0
-                                              ? Image.asset(
-                                                  "assets/images/noimage.jpg",
-                                                  height: 200,
-                                                  width: 200,
-                                                )
-                                              : Image.network(
-                                                  snapshot.data![index]
-                                                      .productImages[0].src,
-                                                  height: 200,
-                                                  width: 200,
-                                                ),
-                                          Flexible(
-                                            child: Text(
-                                              snapshot.data![index].productName,
-                                              style: TextStyle(fontSize: 16),
-                                              /*textAlign: TextAlign.center,*/
+                                      },
+                                      splashColor: Colors.grey.shade200,
+                                      highlightColor: Colors.white,
+                                      elevation: 0,
+                                      focusElevation: 0,
+                                      highlightElevation: 0,
+                                      hoverElevation: 0,
+                                      disabledElevation: 0,
+                                      child: Container(
+                                        height: 320,
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 5,
+                                          horizontal: 10,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            snapshot.data![index].productImages
+                                                .length <=
+                                                0
+                                                ? Image.asset(
+                                              "assets/images/noimage.jpg",
+                                              height: 200,
+                                              width: 200,
+                                            )
+                                                : Image.network(
+                                              snapshot.data![index]
+                                                  .productImages[0].src,
+                                              height: 180,
+                                              width: 200,
                                             ),
-                                          ),
-                                          Flexible(
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  snapshot.data![index]
-                                                          .isDiscounted
-                                                      ? snapshot.data![index]
-                                                              .discountedPrice
-                                                              .toString() +
-                                                          " ₺"
-                                                      : snapshot.data![index]
-                                                              .sellingPrice
-                                                              .toString() +
-                                                          " ₺",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 18),
-                                                ),
-                                                MaterialButton(
-                                                  onPressed: () {
-                                                    cart.insertItem(
+                                            Flexible(
+                                              child: Text(
+                                                snapshot.data![index].productName,
+                                                style: TextStyle(fontSize: 15),
+                                                overflow: TextOverflow.fade,
+                                              ),
+                                              fit: FlexFit.tight,
+                                            ),
+                                            Flexible(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .center,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
                                                         snapshot.data![index]
-                                                            .productId,
-                                                        1);
-                                                  },
-                                                  child: Icon(Icons.add_rounded,
-                                                      size: 35),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            13),
+                                                            .isDiscounted
+                                                            ?  snapshot.data![index]
+                                                            .sellingPrice
+                                                            .toString() +
+                                                            " ₺" : "",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                            FontWeight.w500,
+                                                            color: Colors.grey,
+                                                            fontSize: 15,
+                                                            decoration: TextDecoration.lineThrough
+                                                        ),
+
+                                                        textAlign: TextAlign.start,
+                                                      ),
+                                                      Text(
+                                                        snapshot.data![index]
+                                                            .isDiscounted
+                                                            ? snapshot.data![index]
+                                                            .discountedPrice
+                                                            .toString() +
+                                                            " ₺"
+                                                            : snapshot.data![index]
+                                                            .sellingPrice
+                                                            .toString() +
+                                                            " ₺",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                            FontWeight.w600,
+                                                            fontSize: 18),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  textColor: Colors.white,
-                                                  clipBehavior: Clip
-                                                      .antiAliasWithSaveLayer,
-                                                  height: 50,
-                                                  minWidth: 35,
-                                                  padding: EdgeInsets.zero,
-                                                  elevation: 0,
-                                                  disabledElevation: 0,
-                                                  hoverElevation: 0,
-                                                  highlightElevation: 0,
-                                                  focusElevation: 0,
-                                                ),
-                                              ],
+                                                  MaterialButton(
+                                                    onPressed: () {
+                                                      cart.insertItem(
+                                                          snapshot.data![index]
+                                                              .productId,
+                                                          1);
+                                                    },
+                                                    child: Icon(Icons.add_rounded, size: 30),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                    textColor: Colors.white,
+                                                    clipBehavior: Clip
+                                                        .antiAliasWithSaveLayer,
+                                                    height: 35,
+                                                    minWidth: 35,
+                                                    padding: EdgeInsets.zero,
+                                                    elevation: 3,
+                                                    disabledElevation: 0,
+                                                    hoverElevation: 0,
+                                                    highlightElevation: 0,
+                                                    focusElevation: 0,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                });
+                                    );
+                                  })
+                            );
                           } else {
                             return Padding(
                               padding: EdgeInsets.all(20),
@@ -428,6 +444,7 @@ class _ProductListPageState extends State<ProductListPage>
                       },
                     ),
                   ),
+                  SliverToBoxAdapter(child: Container(height: 100, color: Colors.white,)),
                 ],
               ),
             ),

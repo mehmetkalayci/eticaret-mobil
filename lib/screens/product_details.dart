@@ -126,10 +126,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                     title: Row(
                       children: [
-                        Text(
-                          snapshot.data!.productName,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w500, color: Colors.black),
+                        Flexible(
+                          child: Text(
+                            snapshot.data!.productName,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500, color: Colors.black),
+                          ),
                         ),
                       ],
                     ),
