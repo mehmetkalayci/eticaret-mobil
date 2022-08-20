@@ -28,6 +28,7 @@ class _CartPageState extends State<CartPage> {
         SliverToBoxAdapter(
           child: (cart.cartItems.length > 0)
               ? ListView.builder(
+                  physics: BouncingScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: cart.cartItems.length,
                   itemBuilder: (context, index) {
@@ -118,7 +119,7 @@ class _CartPageState extends State<CartPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                       children: <TextSpan>[
                         TextSpan(
-                          text: "${cart.totalAmount} ₺",
+                          text: "${cart.totalAmount.toStringAsFixed(2)} ₺",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

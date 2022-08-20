@@ -5,12 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _storage = SharedPreferences.getInstance();
 
 Future<List<CartModel>?> getCartItems() async {
   Object? token = await (await _storage).get("accessToken");
+
+
+  try {
+    if(token == null || token == "" || Jwt.isExpired(token.toString())) {
+      return null;
+    }
+  } catch (e) {
+    return null;
+  }
 
   final response = await http.get(
     Uri.parse("http://api.qsres.com/mobileapp/cart"),
@@ -50,7 +60,7 @@ Future<void> addToCart(int productId, int pcs) async {
   );
 
   if (response.statusCode == 200) {
-    //Fluttertoast.showToast(msg: "Ürün sepete eklendi!");
+    Fluttertoast.showToast(msg: "Ürün sepete eklendi!");
   } else if (response.statusCode == 401) {
     Fluttertoast.showToast(msg: "Sepeti kullanmak için oturum açın!");
   } else {
