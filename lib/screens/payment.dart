@@ -126,9 +126,9 @@ class _PaymentPageState extends State<PaymentPage> {
                     value: 1,
                     groupValue: _valueOfPayment,
                     title: Text('Kapıda Nakit Ödeme',
-                        style: TextStyle(fontSize: 18)),
+                        style: TextStyle(fontSize: 15)),
                     subTitle: Text('Kapıda Ödeme',
-                        style: TextStyle(color: Colors.black54, fontSize: 16)),
+                        style: TextStyle(color: Colors.black54, fontSize: 15)),
                     onChanged: (value) =>
                         setState(() => _valueOfPayment = value!),
                   ),
@@ -137,9 +137,9 @@ class _PaymentPageState extends State<PaymentPage> {
                     value: 2,
                     groupValue: _valueOfPayment,
                     title: Text('Kapıda Kredi Kartıyla Ödeme',
-                        style: TextStyle(fontSize: 18)),
+                        style: TextStyle(fontSize: 15, )),
                     subTitle: Text('Kapıda Ödeme',
-                        style: TextStyle(color: Colors.black54, fontSize: 16)),
+                        style: TextStyle(color: Colors.black54, fontSize: 15)),
                     onChanged: (value) =>
                         setState(() => _valueOfPayment = value!),
                   ),
@@ -274,10 +274,14 @@ class _PaymentPageState extends State<PaymentPage> {
                       children: [
                         Icon(Icons.check_circle),
                         SizedBox(width: 10),
-                        Text(
-                          "SİPARİŞİ ONAYLA - ${cart.totalAmount.toString()} ₺",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w400),
+                        Flexible(
+                          child: Text(
+                            "SİPARİŞİ ONAYLA - ${cart.totalAmount.toString()} ₺",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w400,
+                            ),
+                          ),
                         ),
                       ],
                     ),

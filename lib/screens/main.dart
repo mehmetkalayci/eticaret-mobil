@@ -70,8 +70,8 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Provider.of<AuthProvider>(context, listen: false).InitAuth();
-      Provider.of<CartProvider>(context, listen: false).loadItems();
+      Provider.of<AuthProvider>(context, listen: true).InitAuth();
+      Provider.of<CartProvider>(context, listen: true).loadItems();
     });
   }
 

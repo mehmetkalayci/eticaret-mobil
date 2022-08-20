@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:badges/badges.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
@@ -141,11 +143,15 @@ Widget MyDrawerMenu(BuildContext context) {
       //     Navigator.of(context).pop();
       //   },
       // ),
+
+
+
       // Divider(height: 0),
 
 
 
       Spacer(),
+
       Divider(height: 0),
       ListTile(
         visualDensity: VisualDensity.compact,
@@ -156,7 +162,7 @@ Widget MyDrawerMenu(BuildContext context) {
           style: TextStyle(fontSize: 14),
         ),
         onTap: () async {
-          await launchUrl(Uri.parse('tel:+905536270909'));
+          await launchUrl(Uri.parse(Platform.isIOS ? 'tel://+905536270909' : 'tel:+905536270909'));
         },
       ),
       Divider(height: 0),

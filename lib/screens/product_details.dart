@@ -176,7 +176,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                 autoPlay: true,
                                 enlargeCenterPage: true,
                                 viewportFraction: 1.0,
-                                height: 300,
+                                height: 400,
                                 pageSnapping: true,
                                 onPageChanged: (index, reason) {
                                   setState(() {

@@ -7,7 +7,7 @@ class CustomRadioListTile<T> extends StatelessWidget {
   final Widget? subTitle;
   final ValueChanged<T?> onChanged;
 
-  const CustomRadioListTile({
+  CustomRadioListTile({
     required this.value,
     required this.groupValue,
     required this.onChanged,
@@ -24,7 +24,7 @@ class CustomRadioListTile<T> extends StatelessWidget {
       onTap: () => onChanged(value),
       borderRadius: BorderRadius.circular(8.0),
       child: Ink(
-        height: 90,
+        height: 80,
         decoration: BoxDecoration(
             color: Colors.grey.shade100,
           borderRadius: BorderRadius.circular(8.0)
@@ -40,7 +40,7 @@ class CustomRadioListTile<T> extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   title,
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   if(subTitle != null) subTitle!,
                 ],
               ),

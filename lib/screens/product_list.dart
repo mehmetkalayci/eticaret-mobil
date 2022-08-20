@@ -327,7 +327,7 @@ class _ProductListPageState extends State<ProductListPage>
                                                 0
                                                 ? Image.asset(
                                               "assets/images/noimage.jpg",
-                                              height: 200,
+                                              height: 180,
                                               width: 200,
                                             )
                                                 : Image.network(
