@@ -23,9 +23,13 @@ import 'firebase_options.dart';
 //   print("Handling a background message: ${message.messageId}");
 //   Fluttertoast.showToast(msg: message.notification!.body.toString());
 // }
+final _storage = SharedPreferences.getInstance();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  Object? token = await (await _storage).get("accessToken");
+  print("main---->" + token.toString());
 
   // // initialize firebase app
   // await Firebase.initializeApp(
