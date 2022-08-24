@@ -5,6 +5,7 @@ import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,7 +17,6 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-
   Future<ProfileModel?> getProfile(String token) async {
     final response = await http.get(
       Uri.parse("http://api.qsres.com/authentication/me"),
@@ -33,9 +33,26 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
+  Future<bool> deleteAccount(String token) async {
+    final response = await http.post(
+      Uri.parse("http://api.qsres.com/authentication/delete"),
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ${token}',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(msg: response.body.toString());
+      return true;
+    } else {
+      Fluttertoast.showToast(msg: "Hata Oluştu!\n" + response.body.toString());
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
     AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
     CartProvider cart = Provider.of<CartProvider>(context, listen: false);
@@ -45,9 +62,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
         future: getProfile(auth.token),
         builder: (BuildContext context, AsyncSnapshot<ProfileModel?> snapshot) {
           if (snapshot.hasData) {
-            if(snapshot.data == null){
+            if (snapshot.data == null) {
               return Center(child: Text("Profil bilgisi getirilemedi!"));
-            }else{
+            } else {
               return Container(
                 width: double.infinity,
                 child: Column(
@@ -72,7 +89,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ),
                     Text(
                       snapshot.data!.fullName,
-                      style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                     ),
                     Text(
                       snapshot.data!.businessName,
@@ -102,7 +120,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     SizedBox(height: 30),
                     /****************************************************/
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                       child: MaterialButton(
                           onPressed: () {
                             menu.setCurrentPage(8);
@@ -130,42 +149,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             ],
                           )),
                     ),
-                    //
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                    //   child: MaterialButton(
-                    //       onPressed: () {
-                    //         // Navigator.push(
-                    //         //   context,
-                    //         //   PageTransition(
-                    //         //     type: PageTransitionType.fade,
-                    //         //     child: UserProfileEditPage(),
-                    //         //   ),
-                    //         // );
-                    //       },
-                    //       height: 60,
-                    //       color: Colors.grey.shade200,
-                    //       focusElevation: 0,
-                    //       highlightElevation: 0,
-                    //       hoverElevation: 0,
-                    //       elevation: 0,
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(8),
-                    //       ),
-                    //       child: Row(
-                    //         children: [
-                    //           Icon(Icons.verified_user_rounded),
-                    //           SizedBox(width: 10),
-                    //           Text(
-                    //             "Siparişlerim",
-                    //             style: TextStyle(
-                    //                 fontSize: 18, fontWeight: FontWeight.w400),
-                    //           ),
-                    //           Spacer(),
-                    //           Icon(Icons.arrow_forward_rounded)
-                    //         ],
-                    //       )),
-                    // ),
+
                     //
                     // Padding(
                     //   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
@@ -198,37 +182,97 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     //   ),
                     // ),
 
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                    //   child: MaterialButton(
-                    //     onPressed: () {
-                    //       cart.cartItems.clear();
-                    //     },
-                    //     height: 60,
-                    //     color: Colors.red.shade600,
-                    //     textColor: Colors.white,
-                    //     focusElevation: 0,
-                    //     highlightElevation: 0,
-                    //     hoverElevation: 0,
-                    //     elevation: 0,
-                    //     shape: RoundedRectangleBorder(
-                    //       borderRadius: BorderRadius.circular(8),
-                    //     ),
-                    //     child: Row(
-                    //       children: [
-                    //         Icon(Icons.logout_rounded),
-                    //         SizedBox(width: 10),
-                    //         Text(
-                    //           "Çıkış Yap",
-                    //           style: TextStyle(
-                    //               fontSize: 18, fontWeight: FontWeight.w400),
-                    //         ),
-                    //         Spacer(),
-                    //         Icon(Icons.arrow_forward_rounded)
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Hesap Silinsin Mi?"),
+                                content:
+                                Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(text: 'Hesap silme işlemi  '),
+                                      TextSpan(
+                                        text: 'geri alınamaz!',
+                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  MaterialButton(
+                                    color: Colors.red.shade600,
+                                    focusElevation: 0,
+                                    highlightElevation: 0,
+                                    hoverElevation: 0,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      "Evet, Hesabım Silinsin!",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    onPressed: () {
+                                      deleteAccount(auth.token).then((value) {
+                                        if (value) {
+                                          auth.Logout();
+                                          cart.cartItems.clear();
+                                          Navigator.pop(context);
+                                          menu.setCurrentPage(0);
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  MaterialButton(
+                                    color: Colors.grey.shade200,
+                                    focusElevation: 0,
+                                    highlightElevation: 0,
+                                    hoverElevation: 0,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text("İptal"),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        height: 60,
+                        color: Colors.red.shade600,
+                        textColor: Colors.white,
+                        focusElevation: 0,
+                        highlightElevation: 0,
+                        hoverElevation: 0,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.no_accounts_rounded),
+                            SizedBox(width: 10),
+                            Text(
+                              "Hesabımı Sil",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 120),
                   ],
                 ),

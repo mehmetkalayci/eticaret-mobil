@@ -191,7 +191,7 @@ class _SigninPageState extends State<SigninPage> {
                     visible: _smsRequested,
                     child: TextFormField(
                       style: TextStyle(fontSize: 18),
-                      inputFormatters: [MaskTextInputFormatter(mask: '####')],
+                      inputFormatters: [MaskTextInputFormatter(mask: '######')],
                       cursorColor: Colors.black,
                       cursorWidth: 0.75,
                       controller: otpController,
