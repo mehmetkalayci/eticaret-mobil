@@ -29,7 +29,7 @@ class ProductModel {
   int categoryId;
   String productName;
   String details;
-  int totalStockAmount;
+  int? totalStockAmount;
   double sellingPrice;
   double discountedPrice;
   bool isDiscounted;

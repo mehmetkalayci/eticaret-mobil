@@ -15,7 +15,7 @@ class SearchResultModel {
   int productId;
   String productName;
   String details;
-  int totalStockAmount;
+  int? totalStockAmount;
   double sellingPrice;
   double discountedPrice;
   String name;

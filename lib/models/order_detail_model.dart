@@ -16,7 +16,7 @@ class OrderDetailModel {
 
   int orderDetailId;
   int orderId;
-  int productId;
+  int? productId;
   String productName;
   double sellingPrice;
   double discountedPrice;

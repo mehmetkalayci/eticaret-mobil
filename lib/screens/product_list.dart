@@ -107,6 +107,9 @@ class _ProductListPageState extends State<ProductListPage>
   void initState() {
     mainCategoryIndex = widget.mainCategoryId;
     subCategoryIndex = widget.subCategoryId;
+
+    print("maincategoryindex-->" + mainCategoryIndex.toString());
+    print("subcategoryindex-->" + subCategoryIndex.toString());
   }
 
   bool firstLoad = true;
