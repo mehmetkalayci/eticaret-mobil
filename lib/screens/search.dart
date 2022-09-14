@@ -49,103 +49,111 @@ class _SearchPageState extends State<SearchPage> {
 
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
 
-    return FutureBuilder(
-        future: fetchSearchResult(query),
-        builder: (BuildContext context, AsyncSnapshot<List<SearchResultModel>> snapshot) {
-          if (snapshot.hasData) {
-            return CustomScrollView(
-              physics: ScrollPhysics(),
-              slivers: <Widget>[
-                SliverAppBar(
-                  surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
-                  automaticallyImplyLeading: false,
-                  elevation: 1,
-                  titleSpacing: 10,
-                  systemOverlayStyle: SystemUiOverlayStyle(
-                    statusBarColor: Theme.of(context).scaffoldBackgroundColor,
-                    statusBarBrightness: Brightness.dark,
-                    statusBarIconBrightness: Brightness.dark,
-                    systemStatusBarContrastEnforced: true,
-                  ),
-                  shape: Border(
-                    bottom: BorderSide(width: 1.5, color: Colors.grey.shade200),
-                  ),
-                  pinned: true,
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  toolbarHeight: 90,
-                  title: Row(
-                    children: [
-                      SizedBox(width: 10),
-                      Icon(Icons.search_rounded),
-                      SizedBox(width: 10),
-                      Flexible(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: "Ürün Ara",
-                            border: InputBorder.none,
-                            hintStyle: TextStyle(color: Colors.black87),
+    return WillPopScope(
+      onWillPop: () async {
+        menu.setCurrentPage(0);
+        return false;
+      },
+      child: FutureBuilder(
+          future: fetchSearchResult(query),
+          builder: (BuildContext context, AsyncSnapshot<List<SearchResultModel>> snapshot) {
+            if (snapshot.hasData) {
+              return CustomScrollView(
+                physics: ScrollPhysics(),
+                slivers: <Widget>[
+                  SliverAppBar(
+                    surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
+                    automaticallyImplyLeading: false,
+                    elevation: 1,
+                    titleSpacing: 10,
+                    systemOverlayStyle: SystemUiOverlayStyle(
+                      statusBarColor: Theme.of(context).scaffoldBackgroundColor,
+                      statusBarBrightness: Brightness.dark,
+                      statusBarIconBrightness: Brightness.dark,
+                      systemStatusBarContrastEnforced: true,
+                    ),
+                    shape: Border(
+                      bottom: BorderSide(width: 1.5, color: Colors.grey.shade200),
+                    ),
+                    pinned: true,
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                    toolbarHeight: 90,
+                    title: Row(
+                      children: [
+                        SizedBox(width: 10),
+                        Icon(Icons.search_rounded),
+                        SizedBox(width: 10),
+                        Flexible(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: "Ürün Ara",
+                              border: InputBorder.none,
+                              hintStyle: TextStyle(color: Colors.black87),
+                            ),
+                            cursorWidth: 1,
+                            cursorColor: Colors.black,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            onChanged: (val) {
+                              setState(() => query = val);
+                            },
                           ),
-                          cursorWidth: 1,
-                          cursorColor: Colors.black,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          onChanged: (val) {
-                            setState(() => query = val);
-                          },
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children:
-                          snapshot.data != null && snapshot.data!.length > 0
-                              ? snapshot.data!.map((element) {
+                  SliverToBoxAdapter(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            snapshot.data != null && snapshot.data!.length > 0
+                                ? snapshot.data!.map((element) {
 
-                                  return ListTile(
-                                    onTap: () {
+                                    return ListTile(
+                                      onTap: () {
 
-                                      menu.setProductId(element.productId);
-                                      menu.setCurrentPage(6);
+                                        menu.setProductId(element.productId);
+                                        menu.setCurrentPage(6);
 
 
-                                      // Navigator.push(
-                                      //   context,
-                                      //   PageTransition(
-                                      //     type: PageTransitionType.fade,
-                                      //     child: ProductDetailPage(productId: element.productId),
-                                      //   ),
-                                      // );
-                                    },
-                                    title: Text(element.productName),
-                                    subtitle: Text(element.name),
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 20),
-                                  );
-                                }).toList()
-                              : [
-                                  Padding(
-                                    padding: EdgeInsets.all(30),
-                                    child: Text(
-                                      "Herhangi bir sonuç bulunamadı.\nArama yaptığınız ikelimeyi değiştirip yeniden deneyin.",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  )
-                                ]),
-                ),
-                SliverPadding(padding: EdgeInsets.only(bottom: 120))
-              ],
-            );
-          } else if (snapshot.hasError) {
-            return MyErrorWidget(context);
-          }
-          return MyLoadingWidget(context);
-        });
+                                        // Navigator.push(
+                                        //   context,
+                                        //   PageTransition(
+                                        //     type: PageTransitionType.fade,
+                                        //     child: ProductDetailPage(productId: element.productId),
+                                        //   ),
+                                        // );
+                                      },
+                                      title: Text(element.productName),
+                                      subtitle: Text(element.name ?? ""),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 20),
+                                    );
+                                  }).toList()
+                                : [
+                                    Padding(
+                                      padding: EdgeInsets.all(30),
+                                      child: Text(
+                                        "Herhangi bir sonuç bulunamadı.\nArama yaptığınız ikelimeyi değiştirip yeniden deneyin.",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    )
+                                  ]),
+                  ),
+                  SliverPadding(padding: EdgeInsets.only(bottom: 120))
+                ],
+              );
+            } else if (snapshot.hasError) {
+              print(snapshot);
+              print(snapshot.error);
+              return MyErrorWidget(context);
+            }
+            return MyLoadingWidget(context);
+          }),
+    );
   }
 }

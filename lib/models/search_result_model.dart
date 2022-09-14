@@ -18,7 +18,7 @@ class SearchResultModel {
   int? totalStockAmount;
   double sellingPrice;
   double discountedPrice;
-  String name;
+  String? name;
 
   factory SearchResultModel.fromRawJson(String str) => SearchResultModel.fromJson(json.decode(str));
 

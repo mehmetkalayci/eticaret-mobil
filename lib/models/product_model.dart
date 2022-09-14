@@ -16,28 +16,18 @@ class ProductModel {
     required this.sellingPrice,
     required this.discountedPrice,
     required this.isDiscounted,
-    required this.isActive,
-    required this.createdAt,
-    required this.category,
-    required this.carts,
-    required this.orderDetails,
     required this.productAttibutes,
     required this.productImages,
   });
 
   int productId;
-  int categoryId;
+  int? categoryId;
   String productName;
   String details;
   int? totalStockAmount;
   double sellingPrice;
   double discountedPrice;
   bool isDiscounted;
-  bool isActive;
-  DateTime createdAt;
-  CategoryModel category;
-  List<dynamic> carts;
-  List<dynamic> orderDetails;
   List<ProductAttibute> productAttibutes;
   List<ProductImage> productImages;
 
@@ -55,11 +45,10 @@ class ProductModel {
         sellingPrice: json["sellingPrice"],
         discountedPrice: json["discountedPrice"],
         isDiscounted: json["isDiscounted"],
-        isActive: json["isActive"],
-        createdAt: DateTime.parse(json["createdAt"]),
-        category: CategoryModel.fromJson(json["category"]),
-        carts: List<dynamic>.from(json["carts"].map((x) => x)),
-        orderDetails: List<dynamic>.from(json["orderDetails"].map((x) => x)),
+
+
+
+
         productAttibutes: List<ProductAttibute>.from(
             json["productAttibutes"].map((x) => ProductAttibute.fromJson(x))),
         productImages: List<ProductImage>.from(
@@ -75,11 +64,6 @@ class ProductModel {
         "sellingPrice": sellingPrice,
         "discountedPrice": discountedPrice,
         "isDiscounted": isDiscounted,
-        "isActive": isActive,
-        "createdAt": createdAt.toIso8601String(),
-        "category": category.toJson(),
-        "carts": List<dynamic>.from(carts.map((x) => x)),
-        "orderDetails": List<dynamic>.from(orderDetails.map((x) => x)),
         "productAttibutes":
             List<dynamic>.from(productAttibutes.map((x) => x.toJson())),
         "productImages":
