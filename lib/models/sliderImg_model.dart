@@ -6,12 +6,17 @@ class SliderImgModel {
     required this.sliderImgSrc,
     this.details,
     required this.isActive,
+    this.productId,
+    this.categoryId,
   });
 
   int sliderImgId;
   String sliderImgSrc;
   dynamic details;
   bool isActive;
+  int? productId;
+  int? categoryId;
+
 
   factory SliderImgModel.fromRawJson(String str) => SliderImgModel.fromJson(json.decode(str));
 
@@ -22,6 +27,8 @@ class SliderImgModel {
     sliderImgSrc: json["sliderImgSrc"],
     details: json["details"],
     isActive: json["isActive"],
+    productId: json["productId"],
+    categoryId: json["categoryId"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -29,5 +36,7 @@ class SliderImgModel {
     "sliderImgSrc": sliderImgSrc,
     "details": details,
     "isActive": isActive,
+    "productId": productId,
+    "categoryId": categoryId,
   };
 }

@@ -64,9 +64,12 @@ class OrderHistoryPage extends StatelessWidget {
 
   late Future<OrderModel?> futureOrderHistory;
 
+
+
   @override
   Widget build(BuildContext context) {
     AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
+
 
     return SingleChildScrollView(
         child: Column(
@@ -144,7 +147,7 @@ class OrderHistoryPage extends StatelessWidget {
                                                 ),
                                                 subtitle: Text(
                                                   DateFormat(
-                                                          'dd MMMM yyyy hh:mm')
+                                                          'd MMMM yyyy hh:mm', 'tr_TR')
                                                       .format(
                                                     snapshot.data!.orderDate,
                                                   ),
@@ -194,10 +197,9 @@ class OrderHistoryPage extends StatelessWidget {
                                                             Text(item.status),
                                                         subtitle: Text(
                                                           DateFormat(
-                                                                  'dd MMMM yyyy hh:mm')
+                                                                  'd MMMM yyyy hh:mm', 'tr_TR')
                                                               .format(
-                                                            item.operationTime,
-                                                          ),
+                                                            item.operationTime),
                                                         ),
                                                         visualDensity:
                                                             VisualDensity
@@ -236,13 +238,13 @@ class OrderHistoryPage extends StatelessWidget {
                                               ),
                                               ListTile(
                                                 title: Text(
-                                                  "Toplam",
+                                                  "Ödenecek Tutar",
                                                   style: TextStyle(
                                                       fontWeight:
                                                       FontWeight.bold),
                                                 ),
                                                 subtitle: Text(
-                                                  snapshot.data!.totalAmount.toString(),
+                                                  snapshot.data!.paidAmount.toString(),
                                                 ),
                                               ),
                                               Divider(height: 1),
@@ -266,7 +268,7 @@ class OrderHistoryPage extends StatelessWidget {
                       title:
                           Text("Sipariş No #${snapshot.data![index].orderId}"),
                       subtitle: Text(
-                        DateFormat('dd MMMM yyyy').format(
+                        DateFormat('d MMMM yyyy', 'tr_TR').format(
                           DateTime.parse(snapshot.data![index].orderDate),
                         ),
                       ),

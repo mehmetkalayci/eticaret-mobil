@@ -13,9 +13,8 @@ final _storage = SharedPreferences.getInstance();
 Future<List<CartModel>?> getCartItems() async {
   Object? token = await (await _storage).get("accessToken");
 
-
   try {
-    if(token == null || token == "" || Jwt.isExpired(token.toString())) {
+    if (token == null || token == "" || Jwt.isExpired(token.toString())) {
       return null;
     }
   } catch (e) {
@@ -96,8 +95,6 @@ Future<void> deleteAnItemCompletely(int productId) async {
   }
 }
 
-
-
 class CartProvider with ChangeNotifier {
   List<CartModel> cartItems = [];
 
@@ -127,22 +124,31 @@ class CartProvider with ChangeNotifier {
     });
   }
 
+  double _shippingFee = 0.0;
+
+  void setShippingFee(double fee) {
+    _shippingFee = fee;
+  }
+
   double _totalAmount = 0.0;
+
   double get totalAmount {
     _totalAmount = 0.0;
 
     cartItems.forEach((item) {
-      if(item.isDiscounted) {
+      if (item.isDiscounted) {
         _totalAmount += item.discountedPrice * item.pcs;
-      }else{
-        _totalAmount+=item.sellingPrice * item.pcs;
+      } else {
+        _totalAmount += item.sellingPrice * item.pcs;
       }
     });
 
+    _totalAmount += _shippingFee;
     return _totalAmount;
   }
 
   int _getTotalItemCount = 0;
+
   int get getTotalItemCount {
     _getTotalItemCount = 0;
 
@@ -152,6 +158,4 @@ class CartProvider with ChangeNotifier {
 
     return _getTotalItemCount;
   }
-
-
 }

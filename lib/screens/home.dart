@@ -55,7 +55,6 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder(
       future: _homepageModelFuture,
       builder: (BuildContext context, AsyncSnapshot<HomepageModel> snapshot) {
-        print(snapshot);
         if (snapshot.hasData) {
           return CustomScrollView(
             slivers: [
@@ -102,34 +101,39 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              snapshot.data!.stories.isNotEmpty ?  SliverPadding(padding: EdgeInsets.all(10)) : SliverToBoxAdapter(),
-
-              snapshot.data!.stories.isNotEmpty ? SliverToBoxAdapter(
-                child: Container(
-                  height:  120,
-                  alignment: Alignment.center,
-                  child: AdvStory(
-                    storyCount: snapshot.data!.stories.length,
-                    storyBuilder: (storyIndex) => Story(
-                      contentCount: 1,
-                      contentBuilder: (contentIndex) {
-                        return ImageContent(
-                          duration: Duration(milliseconds: 3000),
-                          url: snapshot.data!.stories[contentIndex].storyImgSrc,
-                        );
-                      },
-                    ),
-                    trayBuilder: (index) {
-                      return AdvStoryTray(
-                        username: Text(snapshot.data!.stories[index].storyTitle,
-                            style: TextStyle(fontSize: 14)),
-                        url: snapshot.data!.stories[index].storyCoverImgSrc,
-                      );
-                    },
-                  ),
-                ),
-              ) : SliverToBoxAdapter(),
-
+              snapshot.data!.stories.isNotEmpty
+                  ? SliverPadding(padding: EdgeInsets.all(10))
+                  : SliverToBoxAdapter(),
+              snapshot.data!.stories.isNotEmpty
+                  ? SliverToBoxAdapter(
+                      child: Container(
+                        height: 120,
+                        alignment: Alignment.center,
+                        child: AdvStory(
+                          storyCount: snapshot.data!.stories.length,
+                          storyBuilder: (storyIndex) => Story(
+                            contentCount: 1,
+                            contentBuilder: (contentIndex) {
+                              return ImageContent(
+                                duration: Duration(milliseconds: 3000),
+                                url: snapshot
+                                    .data!.stories[contentIndex].storyImgSrc,
+                              );
+                            },
+                          ),
+                          trayBuilder: (index) {
+                            return AdvStoryTray(
+                              username: Text(
+                                  snapshot.data!.stories[index].storyTitle,
+                                  style: TextStyle(fontSize: 14)),
+                              url: snapshot
+                                  .data!.stories[index].storyCoverImgSrc,
+                            );
+                          },
+                        ),
+                      ),
+                    )
+                  : SliverToBoxAdapter(),
 
               /**  SLIDER  **/
               SliverToBoxAdapter(
@@ -139,11 +143,24 @@ class _HomePageState extends State<HomePage> {
                       items: snapshot.data!.sliderImgs.map((item) {
                         return CachedNetworkImage(
                           imageUrl: item.sliderImgSrc,
-                          imageBuilder: (context, imageProvider) => Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: imageProvider,
-                                fit: BoxFit.cover,
+                          imageBuilder: (context, imageProvider) =>
+                              GestureDetector(
+                            onTap: () {
+                              if (item.productId != null) {
+                                menu.setProductId(item.productId!);
+                                menu.setCurrentPage(6);
+                              }
+                              if (item.categoryId != null) {
+                                menu.setCategoryId(item.categoryId!);
+                                menu.setCurrentPage(5);
+                              }
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),

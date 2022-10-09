@@ -87,7 +87,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     MenuProvider menu = Provider.of<MenuProvider>(context);
     AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
 
-
     return WillPopScope(
       onWillPop: () async {
         menu.setCurrentPage(5);
@@ -107,23 +106,26 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 slivers: <Widget>[
                   SliverToBoxAdapter(
                     child: AppBar(
-                      surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
+                      surfaceTintColor:
+                          Theme.of(context).scaffoldBackgroundColor,
                       automaticallyImplyLeading: false,
                       elevation: 0.8,
                       titleSpacing: 10,
                       systemOverlayStyle: SystemUiOverlayStyle(
-                        statusBarColor: Theme.of(context).scaffoldBackgroundColor,
+                        statusBarColor:
+                            Theme.of(context).scaffoldBackgroundColor,
                         statusBarBrightness: Brightness.dark,
                         statusBarIconBrightness: Brightness.dark,
                         systemStatusBarContrastEnforced: true,
                       ),
-                      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
                       toolbarHeight: 70,
                       leading: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 15),
                         child: IconButton(
-                          icon:
-                              Icon(Icons.arrow_back_rounded, color: Colors.black),
+                          icon: Icon(Icons.arrow_back_rounded,
+                              color: Colors.black),
                           onPressed: () {
                             menu.setCurrentPage(5);
                           },
@@ -135,7 +137,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             child: Text(
                               snapshot.data!.productName,
                               style: TextStyle(
-                                  fontWeight: FontWeight.w500, color: Colors.black),
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black),
                             ),
                           ),
                         ],
@@ -167,7 +170,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   ),
                                   errorWidget: (context, url, error) => Center(
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(Icons.error),
                                         Text("Resim Yüklenemedi!"),
@@ -224,8 +228,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   width: 1.5, color: Colors.grey.shade200),
                             ),
                           ),
-                          padding:
-                              EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -234,16 +238,32 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                 style: TextStyle(fontSize: 20),
                                 /*textAlign: TextAlign.center,*/
                               ),
+
                               Text(
-                                snapshot.data!.sellingPrice.toString() + " ₺",
+                                snapshot.data!.isDiscounted
+                                    ? snapshot.data!.sellingPrice.toString() +
+                                        " ₺"
+                                    : "",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20,
-                                ),
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey,
+                                    fontSize: 15,
+                                    decoration: TextDecoration.lineThrough),
+                                textAlign: TextAlign.start,
+                              ),
+                              Text(
+                                snapshot.data!.isDiscounted
+                                    ? snapshot.data!.discountedPrice
+                                            .toString() +
+                                        " ₺"
+                                    : snapshot.data!.sellingPrice.toString() +
+                                        " ₺",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 18),
                               ),
                               SizedBox(height: 15),
                               Opacity(
-                                opacity: auth.isLoggedIn ? 1: 0.5,
+                                opacity: auth.isLoggedIn ? 1 : 0.5,
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -332,9 +352,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                         ),
                                         color: Colors.lightBlue.shade900,
                                         textColor: Colors.white,
-                                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         height: 50,
                                         padding: EdgeInsets.zero,
@@ -356,8 +378,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           width: double.infinity,
                           height: 400,
                           color: Colors.white,
-                          padding:
-                              EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -368,7 +390,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                snapshot.data!.details,
+                                snapshot.data!.details ?? "",
                                 style: TextStyle(fontSize: 20),
                                 /*textAlign: TextAlign.center,*/
                               ),

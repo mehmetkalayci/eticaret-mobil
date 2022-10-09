@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:ecommerce_mobile/models/cart_model.dart';
+import 'package:ecommerce_mobile/models/config_model.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:ecommerce_mobile/widgets/basket_item.dart';
@@ -6,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -15,6 +20,19 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  Future<ConfigModel> fetchConfig() async {
+    final response =
+        await http.get(Uri.parse('http://api.qsres.com/mobileapp/config'));
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response, then parse the JSON.
+      return ConfigModel.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response, then throw an exception.
+      throw Exception('Failed to load configuration');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
@@ -28,7 +46,53 @@ class _CartPageState extends State<CartPage> {
       child: Stack(children: [
         CustomScrollView(slivers: [
           SliverToBoxAdapter(
-            child: CustomAppBar(context, Icons.shopping_basket_rounded, "Sepet"),
+            child:
+                CustomAppBar(context, Icons.shopping_basket_rounded, "Sepet"),
+          ),
+          SliverToBoxAdapter(
+            child: FutureBuilder(
+              future: fetchConfig(),
+              builder: (BuildContext context, AsyncSnapshot<ConfigModel> snapshot) {
+                if (snapshot.hasData) {
+
+                  if(cart.totalAmount <snapshot.data!.shipmentFeeUnder) {
+                    cart.setShippingFee(snapshot.data!.shipmentFee);
+                  }else{
+                    cart.setShippingFee(0);
+                  }
+
+                  return Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(7),
+                    child: Text(
+                      "${snapshot.data?.shipmentFeeUnder} ₺ altına ${snapshot.data?.shipmentFee} ₺ gönderim ücreti uygulanır.",
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    color: Colors.red,
+                  );
+                } else if (snapshot.hasError) {
+                  return Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(7),
+                    child: Text(
+                      "Gönderi ücretiyle ilgili hata oluştu!",
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    color: Colors.red,
+                  );
+                } else {
+                  return Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(7),
+                    child: Center(
+                        child: CircularProgressIndicator(color: Colors.white)),
+                    color: Colors.red,
+                  );
+                }
+              },
+            ),
           ),
           SliverToBoxAdapter(
             child: (cart.cartItems.length > 0)

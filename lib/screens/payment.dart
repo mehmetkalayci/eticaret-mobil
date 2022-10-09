@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ecommerce_mobile/models/app_config_response_model.dart';
 import 'package:ecommerce_mobile/models/profile_model.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
@@ -95,6 +96,23 @@ class _PaymentPageState extends State<PaymentPage> {
       return null;
     }
   }
+
+  Future<AppConfigResponseModel?> getConfig() async {
+    final response = await http.get(
+      Uri.parse("http://api.qsres.com/mobileapp/config"),
+      headers: {
+        'Content-type': 'application/json'
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return AppConfigResponseModel.fromJson(json.decode(response.body));
+    } else {
+      return null;
+    }
+  }
+
+  AppConfigResponseModel? config;
 
   @override
   Widget build(BuildContext context) {

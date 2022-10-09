@@ -1,17 +1,32 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:badges/badges.dart';
+import 'package:ecommerce_mobile/models/config_model.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 Widget MyDrawerMenu(BuildContext context) {
   MenuProvider menu = Provider.of<MenuProvider>(context, listen: false);
   CartProvider cart = Provider.of<CartProvider>(context, listen: false);
   AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
+
+  Future<ConfigModel?> fetchConfig() async {
+    final response =
+        await http.get(Uri.parse('http://api.qsres.com/mobileapp/config'));
+
+    if (response.statusCode == 200) {
+      return ConfigModel.fromJson(jsonDecode(response.body));
+    }
+    return null;
+  }
 
   return Drawer(
     child: Column(children: [
@@ -144,28 +159,58 @@ Widget MyDrawerMenu(BuildContext context) {
       //   },
       // ),
 
-
-
       // Divider(height: 0),
-
-
 
       Spacer(),
 
-      Divider(height: 0),
-      ListTile(
-        visualDensity: VisualDensity.compact,
-        leading: Icon(Icons.phone_rounded),
-        title: Text('+90-553-627-0909'),
-        subtitle: Text(
-          "Aramak için tıklayın.",
-          style: TextStyle(fontSize: 14),
-        ),
-        onTap: () async {
-          await launchUrl(Uri.parse(Platform.isIOS ? 'tel://+905536270909' : 'tel:+905536270909'));
-        },
-      ),
-      Divider(height: 0),
+      FutureBuilder(
+          builder: (context, AsyncSnapshot<ConfigModel?> snapshot) {
+            // Checking if future is resolved or not
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return Container();
+              } else if (snapshot.hasData) {
+                final data = snapshot.data;
+                return Column(
+                  children: [
+                    if (data?.appWhatsappUrl != null)
+                      ListTile(
+                        visualDensity: VisualDensity.compact,
+                        leading: Icon(Icons.whatsapp),
+                        title: Text('Whatsapp Destek'),
+                        subtitle: const Text(
+                          "",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        onTap: () async {
+                          await launchUrl(
+                            Uri.parse(data!.appWhatsappUrl!),
+                          );
+                        },
+                      ),
+                    if (data?.appContactPhone != null || data!.appContactPhone.toString().trim().isNotEmpty)
+                      ListTile(
+                        visualDensity: VisualDensity.compact,
+                        leading: Icon(Icons.phone_rounded),
+                        title: Text(data?.appContactPhone ?? "İletişim Bilgisi Girilmemiş!"),
+                        subtitle: Text(
+                          "Aramak için tıklayın.",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        onTap: () async {
+                          await launchUrl(Uri.parse(Platform.isIOS
+                              ? 'tel://${data?.appContactPhone}'
+                              : 'tel:${data?.appContactPhone}'));
+                        },
+                      ),
+                  ],
+                );
+              }
+            }
+
+            return Center(child: Container());
+          },
+          future: fetchConfig()),
       SizedBox(height: 20)
     ]),
   );
